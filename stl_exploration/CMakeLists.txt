@@ -42,3 +42,6 @@ target_link_libraries(stl_exploration ${catkin_LIBRARIES})
 add_dependencies(stl_exploration ${${PROJECT_NAME}_EXPORTED_TARGETS} 
 stl_exploration_generate_messages_cpp
 ${PROJECT_NAME}_gencfg)
+
+add_library(laserscan_to_pointcloud src/laserscan_to_pointcloud.cpp)
+target_link_libraries(laserscan_to_pointcloud ${catkin_LIBRARIES})

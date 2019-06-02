@@ -35,6 +35,12 @@ struct Params
   bool visualize_tree;
   bool visualize_rays;
   bool visualize_exploration_area;
+
+  bool he_active;
+  std::string sensor;
+  double mu;
+  double sigma;
+  double constant;
 };
 
 Params readParams();

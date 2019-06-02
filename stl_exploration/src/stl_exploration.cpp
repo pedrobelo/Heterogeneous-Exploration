@@ -119,8 +119,8 @@ int main(int argc, char** argv)
   setpoint_pub.publish(geometry_msgs::PoseStamped());
   setpoint_pub.publish(geometry_msgs::PoseStamped());
   setpoint_pub.publish(geometry_msgs::PoseStamped());
-  arm_client.call(arm_srv);
-  set_mode_client.call(set_mode_srv);
+  //arm_client.call(arm_srv);
+  //set_mode_client.call(set_mode_srv);
 
   for (int i = 0; i < initial_positions.size(); ++i)
   {

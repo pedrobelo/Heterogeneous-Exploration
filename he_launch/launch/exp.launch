@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<launch>
+	<arg name="path" default="empty_room_big/stl" />
+	<include file="$(find he_launch)/launch/exploration/exploration.launch">
+		<arg name="robot_name" value="iris_1" />
+	</include>
+
+	<include file="$(find he_launch)/launch/exploration/exploration.launch">
+		<arg name="robot_name" value="iris_2" />
+	</include>
+</launch>
+

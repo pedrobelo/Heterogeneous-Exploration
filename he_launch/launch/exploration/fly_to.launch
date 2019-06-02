@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+<launch>
+  <arg name="robot_name" default="iris_0"/>
+  <node name="fly_to_server" pkg="stl_exploration" type="fly_to">
+  	<param name="base_link_name" value="$(arg robot_name)/base_link" />
+  	<param name="map_name" value="$(arg robot_name)/map" />
+    <remap from="fly_to_cmd" to="/$(arg robot_name)/mavros/setpoint_position/local"/>
+  </node>
+</launch>
+

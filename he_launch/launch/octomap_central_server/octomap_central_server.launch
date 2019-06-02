@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<launch>
+	<arg name="distance_threshold" default="0.4"/>
+	<arg name="resolution" default="0.2" />
+	
+	<arg name="rgbd/max_range" default="5" />
+	<arg name="rgbd/hit" default="0.7" />
+	<arg name="rgbd/miss" default="0.4" />
+	<arg name="rgbd/min" default="0.12" />
+	<arg name="rgbd/max" default="0.97" />
+
+	<arg name="lidar/max_range" default="20" />
+	<arg name="lidar/hit" default="0.7" />
+	<arg name="lidar/miss" default="0.4" />
+	<arg name="lidar/min" default="0.12" />
+	<arg name="lidar/max" default="0.97" />
+
+	<include file="$(find octomap_central_server)/launch/pc_handle.launch">
+		<arg name="distance_threshold" value="$(arg distance_threshold)"/>
+		<arg name="resolution" value="$(arg resolution)" />
+		
+		<arg name="rgbd/max_range" value="$(arg rgbd/max_range)" />
+		<arg name="rgbd/hit" value="$(arg rgbd/hit)" />
+		<arg name="rgbd/miss" value="$(arg rgbd/miss)" />
+		<arg name="rgbd/min" value="$(arg rgbd/min)" />
+		<arg name="rgbd/max" value="$(arg rgbd/max)" />
+
+		<arg name="lidar/max_range" value="$(arg lidar/max_range)" />
+		<arg name="lidar/hit" value="$(arg lidar/hit)" />
+		<arg name="lidar/miss" value="$(arg lidar/miss)" />
+		<arg name="lidar/min" value="$(arg lidar/min)" />
+		<arg name="lidar/max" value="$(arg lidar/max)" />
+	</include>
+</launch>
+

@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<launch>
+	<include file="$(find he_launch)/launch/uavs/camera_uav.launch"/>
+	<include file="$(find he_launch)/launch/uavs/lidar_uav.launch"/>
+</launch>

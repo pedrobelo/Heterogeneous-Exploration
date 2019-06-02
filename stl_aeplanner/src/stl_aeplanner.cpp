@@ -509,213 +509,10 @@ std::vector<octomap::point3d> getChildren(octomap::point3d current, octomap::poi
 
 std::pair<double, double> STLAEPlanner::gainCubature(Eigen::Vector4d state)
 {
-  std::shared_ptr<octomap::OcTree> ot = ot_;
-
-  // octomap::point3d origin(state[0], state[1], state[2]);
-
-  // std::queue<octomap::point3d> open_set;
-  // open_set.emplace(int(((origin.x() + ot->getResolution() / 2.0) /
-  // ot->getResolution())) *
-  //                      ot->getResolution(),
-  //                  int(((origin.y() + ot->getResolution() / 2.0) /
-  //                  ot->getResolution())) *
-  //                      ot->getResolution(),
-  //                  int(((origin.z() + ot->getResolution() / 2.0) /
-  //                  ot->getResolution())) *
-  //                      ot->getResolution());
-
-  // std::set<std::tuple<double, double, double>> closed_set;
-  // std::set<std::tuple<double, double, double>> unexplored_set;
-
-  // std::vector<int> gain_per_yaw(360, 0);
-
-  // double half_vfov = params_.vfov / 2.0;
-
-  // octomap::point3d current;
-  // while (!open_set.empty())
-  // {
-  //   current = open_set.front();
-  //   open_set.pop();
-  //   if (!closed_set.emplace(current.x(), current.y(), current.z()).second)
-  //   {
-  //     // Have already processed this
-  //     continue;
-  //   }
-
-  //   octomap::OcTreeNode* result = ot->search(current);
-  //   if (result)
-  //   {
-  //     if (result->getLogOdds() > 0)
-  //     {
-  //       // Already seen as Occupied space
-  //       continue;
-  //     }
-  //   }
-  //   else
-  //   {
-  //     if (!unexplored_set.emplace(current.x(), current.y(), current.z()).second)
-  //     {
-  //       // Already processed this
-  //       continue;
-  //     }
-  //     else
-  //     {
-  //       // Is this correct?
-  //       int yaw =
-  //           std::round(std::atan2(origin.y() - current.y(), origin.x() - current.x()) *
-  //                      180.0 / M_PI);
-  //       if (yaw < 0)
-  //       {
-  //         yaw += 360;
-  //       }
-
-  //       gain_per_yaw[yaw]++;
-  //     }
-  //   }
-
-  //   // Get children
-  //   std::vector<octomap::point3d> children =
-  //       getChildren(current, origin, ot->getResolution());
-
-  //   for (octomap::point3d child : children)
-  //   {
-  //     // Check if inside boundaries
-  //     if (!isInsideBoundaries(child))
-  //     {
-  //       // Outside boundaries
-  //       continue;
-  //     }
-
-  //     double distance = (child - origin).norm();
-
-  //     // Check if in sensor fov
-  //     double vertical_angle =
-  //         std::fabs(std::asin((child - origin).z() / distance)) * 180.0 / M_PI;
-  //     if (vertical_angle > half_vfov || distance > params_.r_max)
-  //     {
-  //       // Outside sensor fov or range
-  //       continue;
-  //     }
-
-  //     open_set.push(child);
-  //   }
-  // }
-
-  // // double gain = pow(ot->getResolution(), 3.0) * free_set.size();
-
-  // int half_hfov = params_.hfov / 2;
-
-  // int best_yaw = 0;
-  // int best_yaw_score =
-  //     std::accumulate(gain_per_yaw.begin(), gain_per_yaw.begin() + half_hfov, 0) +
-  //     std::accumulate(gain_per_yaw.rbegin(), gain_per_yaw.rend() - half_hfov,
-  //                     0);  // FIXME: Should the second one be -?
-  // int previous_yaw_score = best_yaw_score;
-
-  // for (int yaw = 1; yaw < 360; ++yaw)
-  // {
-  //   int current_yaw_score =
-  //       previous_yaw_score -
-  //       gain_per_yaw[(yaw - 1 - half_hfov + gain_per_yaw.size()) % gain_per_yaw.size()]
-  //       + gain_per_yaw[(yaw + half_hfov) % gain_per_yaw.size()];
-
-  //   previous_yaw_score = current_yaw_score;
-  //   if (current_yaw_score > best_yaw_score)
-  //   {
-  //     best_yaw_score = current_yaw_score;
-  //     best_yaw = yaw;
-  //   }
-  // }
-
-  // double gain = pow(ot->getResolution(), 3.0) * best_yaw_score;
-
-  // return std::make_pair(gain, best_yaw * M_PI / 180.0);
-
-  double gain = 0.0;
-
-  // This function computes the gain
-  double fov_y = params_.hfov, fov_p = params_.vfov;
-
-  double dr = params_.dr, dphi = params_.dphi, dtheta = params_.dtheta;
-  double dphi_rad = M_PI * dphi / 180.0f, dtheta_rad = M_PI * dtheta / 180.0f;
-  double r;
-  int phi, theta;
-  double phi_rad, theta_rad;
-
-  std::map<int, double> gain_per_yaw;
-
-  Eigen::Vector3d origin(state[0], state[1], state[2]);
-  Eigen::Vector3d vec, dir;
-
-  for (theta = -180; theta < 180; theta += dtheta)
-  {
-    theta_rad = M_PI * theta / 180.0f;
-    for (phi = 90 - fov_p / 2; phi < 90 + fov_p / 2; phi += dphi)
-    {
-      phi_rad = M_PI * phi / 180.0f;
-
-      double g = 0;
-      for (r = params_.r_min; r < params_.r_max; r += dr)
-      {
-        vec[0] = state[0] + r * cos(theta_rad) * sin(phi_rad);
-        vec[1] = state[1] + r * sin(theta_rad) * sin(phi_rad);
-        vec[2] = state[2] + r * cos(phi_rad);
-        dir = vec - origin;
-
-        octomap::point3d query(vec[0], vec[1], vec[2]);
-        octomap::OcTreeNode* result = ot->search(query);
-
-        Eigen::Vector4d v(vec[0], vec[1], vec[2], 0);
-        if (!isInsideBoundaries(v))
-          break;
-        if (result)
-        {
-          // Break if occupied so we don't count any information gain behind a wall.
-          if (result->getLogOdds() > 0)
-            break;
-        }
-        else
-          g += (2 * r * r * dr + 1 / 6 * dr * dr * dr) * dtheta_rad * sin(phi_rad) * sin(dphi_rad / 2);
-      }
-
-      gain += g;
-      gain_per_yaw[theta] += g;
-    }
-  }
-
-  int best_yaw = 0;
-  double best_yaw_score = 0;
-  for (int yaw = -180; yaw < 180; yaw++)
-  {
-    double yaw_score = 0;
-    for (int fov = -fov_y / 2; fov < fov_y / 2; fov++)
-    {
-      int theta = yaw + fov;
-      if (theta < -180)
-        theta += 360;
-      if (theta > 180)
-        theta -= 360;
-      yaw_score += gain_per_yaw[theta];
-    }
-
-    if (best_yaw_score < yaw_score)
-    {
-      best_yaw_score = yaw_score;
-      best_yaw = yaw;
-    }
-  }
-
-  double r_max = params_.r_max;
-  double h_max = params_.hfov / M_PI * 180;
-  double v_max = params_.vfov / M_PI * 180;
-
-  gain = best_yaw_score;  // / ((r_max*r_max*r_max/3) * h_max * (1-cos(v_max))) ;
-  // ROS_ERROR_STREAM(gain);
-
-  double yaw = M_PI * best_yaw / 180.f;
-
-  state[3] = yaw;
-  return std::make_pair(gain, yaw);
+  if(params_.sensor == "camera")
+    return STLAEPlanner::gainCubatureCamera(state);
+  else
+    return STLAEPlanner::gainCubatureLidar(state);
 }
 
 geometry_msgs::PoseArray STLAEPlanner::getFrontiers()
@@ -1114,6 +911,209 @@ void STLAEPlanner::configCallback(stl_aeplanner::STLConfig& config, uint32_t lev
 void STLAEPlanner::routerCallback(const dd_gazebo_plugins::Router::ConstPtr& msg)
 {
   ltl_routers_[msg->id] = std::make_pair(msg->pose, msg->range);
+}
+
+
+std::pair<double, double> STLAEPlanner::gainCubatureLidar(Eigen::Vector4d state)
+{
+  std::shared_ptr<octomap::OcTree> ot = ot_;
+
+  double gain = 0.0;
+
+  // This function computes the gain
+  double fov_y = params_.hfov, fov_p = params_.vfov;
+
+  double dr = params_.dr, dphi = params_.dphi, dtheta = params_.dtheta;
+  double dphi_rad = M_PI * dphi / 180.0f, dtheta_rad = M_PI * dtheta / 180.0f;
+  double r;
+  int theta;
+  double theta_rad;
+
+  std::map<int, double> gain_per_yaw;
+
+  Eigen::Vector3d origin(state[0], state[1], state[2]);
+  Eigen::Vector3d vec, dir;
+
+  for (theta = -180; theta < 180; theta += dtheta)
+  {
+    theta_rad = M_PI * theta / 180.0f;
+    double g = 0;
+    for (r = params_.r_min; r < params_.r_max; r += dr)
+    {
+      vec[0] = state[0] + r * cos(theta_rad);
+      vec[1] = state[1] + r * sin(theta_rad);
+      vec[2] = state[2] + r;
+      dir = vec - origin;
+
+      octomap::point3d query(vec[0], vec[1], vec[2]);
+      octomap::OcTreeNode* result = ot->search(query);
+
+      Eigen::Vector4d v(vec[0], vec[1], vec[2], 0);
+      if (!isInsideBoundaries(v))
+        break;
+      if (result)
+      {
+        if(params_.he_active) {
+          double coefficient = STLAEPlanner::coefficient(result->getOccupancy()*100, params_.mu, params_.sigma);
+          g += params_.constant*coefficient*((2 * r * r * dr + 1 / 6 * dr * dr * dr) * dtheta_rad * sin(dphi_rad / 2));
+        }
+        // Break if occupied so we don't count any information gain behind a wall.
+        if (result->getLogOdds() > 0)
+          break;
+      }
+      else {
+        if(params_.he_active) {
+          double coefficient = STLAEPlanner::coefficient(0.5*100, params_.mu, params_.sigma);
+          g += params_.constant*coefficient*((2 * r * r * dr + 1 / 6 * dr * dr * dr) * dtheta_rad * sin(dphi_rad / 2));
+        }
+        else
+          g += (2 * r * r * dr + 1 / 6 * dr * dr * dr) * dtheta_rad * sin(dphi_rad / 2);
+      }
+    }
+
+    gain += g;
+    gain_per_yaw[theta] += g;
+  }
+
+  int best_yaw = 0;
+  double best_yaw_score = 0;
+  for (int yaw = -180; yaw < 180; yaw++)
+  {
+    double yaw_score = 0;
+    for (int fov = -fov_y / 2; fov < fov_y / 2; fov++)
+    {
+      int theta = yaw + fov;
+      if (theta < -180)
+        theta += 360;
+      if (theta > 180)
+        theta -= 360;
+      yaw_score += gain_per_yaw[theta];
+    }
+
+    if (best_yaw_score < yaw_score)
+    {
+      best_yaw_score = yaw_score;
+      best_yaw = yaw;
+    }
+  }
+
+  double r_max = params_.r_max;
+  double h_max = params_.hfov / M_PI * 180;
+  double v_max = params_.vfov / M_PI * 180;
+
+  gain = best_yaw_score;  // / ((r_max*r_max*r_max/3) * h_max * (1-cos(v_max))) ;
+  // ROS_ERROR_STREAM(gain);
+
+  double yaw = M_PI * best_yaw / 180.f;
+
+  state[3] = yaw;
+  return std::make_pair(gain, yaw);
+}
+
+std::pair<double, double> STLAEPlanner::gainCubatureCamera(Eigen::Vector4d state)
+{
+  std::shared_ptr<octomap::OcTree> ot = ot_;
+
+  double gain = 0.0;
+
+  // This function computes the gain
+  double fov_y = params_.hfov, fov_p = params_.vfov;
+
+  double dr = params_.dr, dphi = params_.dphi, dtheta = params_.dtheta;
+  double dphi_rad = M_PI * dphi / 180.0f, dtheta_rad = M_PI * dtheta / 180.0f;
+  double r;
+  int phi, theta;
+  double phi_rad, theta_rad;
+
+  std::map<int, double> gain_per_yaw;
+
+  Eigen::Vector3d origin(state[0], state[1], state[2]);
+  Eigen::Vector3d vec, dir;
+
+  for (theta = -180; theta < 180; theta += dtheta)
+  {
+    theta_rad = M_PI * theta / 180.0f;
+    for (phi = 90 - fov_p / 2; phi < 90 + fov_p / 2; phi += dphi)
+    {
+      phi_rad = M_PI * phi / 180.0f;
+
+      double g = 0;
+      for (r = params_.r_min; r < params_.r_max; r += dr)
+      {
+        vec[0] = state[0] + r * cos(theta_rad) * sin(phi_rad);
+        vec[1] = state[1] + r * sin(theta_rad) * sin(phi_rad);
+        vec[2] = state[2] + r * cos(phi_rad);
+        dir = vec - origin;
+
+        octomap::point3d query(vec[0], vec[1], vec[2]);
+        octomap::OcTreeNode* result = ot->search(query);
+
+        Eigen::Vector4d v(vec[0], vec[1], vec[2], 0);
+        if (!isInsideBoundaries(v))
+          break;
+        if (result)
+        {
+          if(params_.he_active) {
+            double coefficient = STLAEPlanner::coefficient(result->getOccupancy()*100, params_.mu, params_.sigma);
+            g += params_.constant*coefficient*((2 * r * r * dr + 1 / 6 * dr * dr * dr) * dtheta_rad * sin(phi_rad) * sin(dphi_rad / 2));
+          }
+          // Break if occupied so we don't count any information gain behind a wall.
+          if (result->getLogOdds() > 0)
+            break;
+        }
+        else {
+          if(params_.he_active) {
+            double coefficient = STLAEPlanner::coefficient(0.5*100, params_.mu, params_.sigma);
+            g += params_.constant*coefficient*((2 * r * r * dr + 1 / 6 * dr * dr * dr) * dtheta_rad * sin(phi_rad) * sin(dphi_rad / 2));
+          }
+          else
+            g += (2 * r * r * dr + 1 / 6 * dr * dr * dr) * dtheta_rad * sin(phi_rad) * sin(dphi_rad / 2);
+        }
+      }
+
+      gain += g;
+      gain_per_yaw[theta] += g;
+    }
+  }
+
+  int best_yaw = 0;
+  double best_yaw_score = 0;
+  for (int yaw = -180; yaw < 180; yaw++)
+  {
+    double yaw_score = 0;
+    for (int fov = -fov_y / 2; fov < fov_y / 2; fov++)
+    {
+      int theta = yaw + fov;
+      if (theta < -180)
+        theta += 360;
+      if (theta > 180)
+        theta -= 360;
+      yaw_score += gain_per_yaw[theta];
+    }
+
+    if (best_yaw_score < yaw_score)
+    {
+      best_yaw_score = yaw_score;
+      best_yaw = yaw;
+    }
+  }
+
+  double r_max = params_.r_max;
+  double h_max = params_.hfov / M_PI * 180;
+  double v_max = params_.vfov / M_PI * 180;
+
+  gain = best_yaw_score;  // / ((r_max*r_max*r_max/3) * h_max * (1-cos(v_max))) ;
+  // ROS_ERROR_STREAM(gain);
+
+  double yaw = M_PI * best_yaw / 180.f;
+
+  state[3] = yaw;
+  return std::make_pair(gain, yaw);
+}
+
+//probabilities should be percentages
+double STLAEPlanner::coefficient(double occupancyVal, double mu, double sigma) {
+  return std::exp(-std::pow((occupancyVal-mu), 2)/sigma);
 }
 
 }  // namespace stl_aeplanner

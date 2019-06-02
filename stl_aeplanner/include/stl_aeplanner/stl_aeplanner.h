@@ -127,6 +127,9 @@ private:
 
   std::pair<double, double> getGain(std::shared_ptr<RRTNode> node);
   std::pair<double, double> gainCubature(Eigen::Vector4d state);
+  std::pair<double, double> gainCubatureLidar(Eigen::Vector4d state);
+  std::pair<double, double> gainCubatureCamera(Eigen::Vector4d state);
+  double coefficient(double occupancyVal, double mu, double sigma);
 
   // ---------------- Helpers ----------------
   //

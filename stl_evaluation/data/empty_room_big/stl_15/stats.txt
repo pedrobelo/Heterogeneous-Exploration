@@ -1,0 +1,1 @@
+Stamp, Min, Max, Current closest distance, Mean closest distance, Current closest router distance, Min altitude, Max altitude, Current closest altitude, Mean closest altitude

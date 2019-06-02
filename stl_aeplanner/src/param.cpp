@@ -133,6 +133,31 @@ Params readParams()
   {
     ROS_WARN("Looking for %s. Default is false.", (ns + "/visualize_exploration_area").c_str());
   }
+  params.he_active = false;
+  if (!ros::param::get(ns + "/he/he_active", params.he_active))
+  {
+    ROS_WARN("Looking for %s. Default is false.", (ns + "he//he_active").c_str());
+  }
+  params.sensor = "camera";
+  if (!ros::param::get(ns + "/he/sensor", params.sensor))
+  {
+    ROS_WARN("Looking for %s. Default is camera.", (ns + "/camera").c_str());
+  }
+  params.mu = 50;
+  if (!ros::param::get(ns + "/he/mu", params.mu))
+  {
+    ROS_WARN("Looking for %s. Default is 50.", (ns + "/mu").c_str());
+  }
+  params.sigma = 20;
+  if (!ros::param::get(ns + "/he/sigma", params.sigma))
+  {
+    ROS_WARN("Looking for %s. Default is 20.", (ns + "/sigma").c_str());
+  }
+  params.constant = 10;
+  if (!ros::param::get(ns + "/he/constant", params.constant))
+  {
+    ROS_WARN("Looking for %s. Default is 10.", (ns + "/constant").c_str());
+  }
 
   return params;
 }

@@ -1,0 +1,1 @@
+Stamp, Max volume, Current volume, Procentage

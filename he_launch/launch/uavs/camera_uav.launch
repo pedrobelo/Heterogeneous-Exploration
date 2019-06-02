@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<launch>
+	<!-- MAVROS posix SITL environment launch script -->
+	<!-- launches Gazebo environment and 2x: MAVROS, PX4 SITL, and spawns vehicle -->
+	<!-- vehicle model and world -->
+	<arg name="est" default="ekf2"/>
+	<arg name="vehicle" default="iris"/>
+	<arg name="x" default="0"/>
+	<arg name="y" default="0"/>
+	<arg name="z" default="0"/>
+	<arg name="R" default="0"/>
+	<arg name="P" default="0"/>
+	<arg name="Y" default="0"/>
+	
+	<arg name="path" default="empty_room_big/stl" />
+
+	<arg name="robot_name" default="iris_1"/>
+
+	<!-- UAV1 -->
+	<group ns="iris_1">
+		<!-- MAVROS and vehicle configs -->        
+		<arg name="ID" value="1"/>
+		<arg name="fcu_url" default="udp://:14541@localhost:14581"/>
+		<!-- tf between world frame and map frame -->
+		<node pkg="tf2_ros" type="static_transform_publisher" name="world2map" args="$(arg x) $(arg y) $(arg z) $(arg R) $(arg P) $(arg Y) world iris_$(arg ID)/map" />
+
+		<node pkg="tf2_ros" type="static_transform_publisher" name="primesense_broadcaster" args="0.05 0 0.13 -1.57079633 0 -1.57079633 iris_1/base_link iris_1/camera_link" />
+		<!-- PX4 SITL and vehicle spawn -->
+		<include file="$(find he_launch)/launch/uavs/single_vehicle_spawn.launch">
+			<arg name="x" value="$(arg x)"/>
+			<arg name="y" value="$(arg y)"/>
+			<arg name="z" value="$(arg z)"/>
+			<arg name="R" value="$(arg R)"/>
+			<arg name="P" value="$(arg P)"/>
+			<arg name="Y" value="$(arg Y)"/>
+			<arg name="vehicle" value="$(arg vehicle)"/>
+			<arg name="ID" value="$(arg ID)"/>
+			<arg name="sdf" default="$(find he_launch)/models/uav/$(arg vehicle)_$(arg ID).sdf"/>
+		</include>
+		<!-- MAVROS -->
+		<include file="$(find mavros)/launch/node.launch">
+			<arg name="pluginlists_yaml" value="$(find he_launch)/config/px4_pluginlists.yaml"/>
+			<arg name="config_yaml" value="$(find he_launch)/config/px4_config_1.yaml"/>
+
+			<arg name="fcu_url" value="$(arg fcu_url)"/>
+			<arg name="gcs_url" value=""/>
+			<arg name="tgt_system" value="$(eval 1 + arg('ID'))"/>
+			<arg name="tgt_component" value="1"/>
+		</include>
+
+		<!-- Nodelet manager for camera-->
+		<node pkg="nodelet" type="nodelet" args="manager" name="camera_manager" output="screen"/>
+
+		<node pkg="nodelet" type="nodelet" name="image_to_points" args="load depth_image_proc/point_cloud_xyz camera_manager --no-bond">
+			<remap from="camera_info" to="/iris_1/virtual_camera/depth/camera_info" />
+			<remap from="image_rect" to="/iris_1/virtual_camera/depth/image_raw" />
+			<remap from="points" to="/iris_1/virtual_camera/depth/points" />
+			<param name="queue_size" value="100" />
+		</node>
+
+		<node pkg="stl_exploration" type="image_maxing.py" name="image_maxing" output="screen">
+			<remap from="/camera/depth/camera_info" to="/$(arg robot_name)/camera/depth/camera_info"/>
+			<remap from="/camera/depth/image_raw" to="/$(arg robot_name)/camera/depth/image_raw"/>
+			<remap from="/virtual_camera/depth/camera_info" to="/$(arg robot_name)/virtual_camera/depth/camera_info"/>
+			<remap from="/virtual_camera/depth/image_raw" to="/$(arg robot_name)/virtual_camera/depth/image_raw"/>
+		</node>
+	</group>
+</launch>

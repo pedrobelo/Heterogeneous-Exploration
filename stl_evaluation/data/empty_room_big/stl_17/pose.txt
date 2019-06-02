@@ -1,0 +1,1 @@
+Stamp, X, Y, Z, Yaw

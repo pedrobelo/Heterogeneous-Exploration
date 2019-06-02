@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<launch>
+	<group ns="iris_1">
+	    <group ns="stl_aeplanner">
+			<include file="$(find he_launch)/launch/exploration/stl_aeplanner_nodelet.launch">
+				<arg name="robot_name" value="iris_1"/>
+			</include>
+		</group>
+	</group>
+
+	<group ns="iris_2">
+	    <group ns="stl_aeplanner">
+			<include file="$(find he_launch)/launch/exploration/stl_aeplanner_nodelet.launch">
+				<arg name="robot_name" value="iris_2"/>
+			</include>
+		</group>
+	</group>
+</launch>
+

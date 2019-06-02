@@ -1,0 +1,73 @@
+<?xml version="1.0" ?>
+<launch>
+	<arg name="distance_threshold" default="0.4"/>
+	<arg name="resolution" default="0.2" />
+	
+	<arg name="rgbd/max_range" default="5" />
+	<arg name="rgbd/hit" default="0.7" />
+	<arg name="rgbd/miss" default="0.4" />
+	<arg name="rgbd/min" default="0.12" />
+	<arg name="rgbd/max" default="0.97" />
+
+	<arg name="lidar/max_range" default="20" />
+	<arg name="lidar/hit" default="0.7" />
+	<arg name="lidar/miss" default="0.4" />
+	<arg name="lidar/min" default="0.12" />
+	<arg name="lidar/max" default="0.97" />
+
+	<node name="pc_handle" pkg="octomap_central_server" type="pc_handle" output="screen">
+		<param name="distance_threshold" value="$(arg distance_threshold)"/>
+		<remap from="/pc_handle/cloud_in" to="/cloud_in" />
+		<remap from="/pc_handle/cloud_out" to="/cloud_in_filtered" />
+	</node>
+
+	<group ns="iris_1">
+		<node name="octomap_central_server" pkg="octomap_central_server" type="octomap_central_server">
+			<param name="resolution" value="$(arg resolution)" />
+			<param name="publish_free_space" value="true" />
+			<param name="frame_id" type="string" value="iris_1/map" />
+			
+			<param name="rgbd/max_range" value="$(arg rgbd/max_range)" />
+			<param name="rgbd/hit" value="$(arg rgbd/hit)" />
+			<param name="rgbd/miss" value="$(arg rgbd/miss)" />
+			<param name="rgbd/min" value="$(arg rgbd/min)" />
+			<param name="rgbd/max" value="$(arg rgbd/max)" />
+
+			<param name="lidar/max_range" value="$(arg lidar/max_range)" />
+			<param name="lidar/hit" value="$(arg lidar/hit)" />
+			<param name="lidar/miss" value="$(arg lidar/miss)" />
+			<param name="lidar/min" value="$(arg lidar/min)" />
+			<param name="lidar/max" value="$(arg lidar/max)" />
+
+			<!--remap from="cloud_in" to="/$(arg robot_name)/camera/depth/points2" /-->
+			<remap from="/iris_1/octomap_central_server/lidar_pc" to="/lidar_pc_filtered" />
+			<remap from="/iris_1/octomap_central_server/rgbd_pc" to="/rgbd_pc_filtered" />
+			<remap from="/iris_1/octomap_full" to="/iris_1/octomap_central_server/octomap_full"/>
+		</node>
+	</group>
+
+	<group ns="iris_2">
+		<node name="octomap_central_server" pkg="octomap_central_server" type="octomap_central_server">
+			<param name="resolution" value="$(arg resolution)" />
+			<param name="publish_free_space" value="true" />
+			<param name="frame_id" type="string" value="iris_2/map" />
+			
+			<param name="rgbd/max_range" value="$(arg rgbd/max_range)" />
+			<param name="rgbd/hit" value="$(arg rgbd/hit)" />
+			<param name="rgbd/miss" value="$(arg rgbd/miss)" />
+			<param name="rgbd/min" value="$(arg rgbd/min)" />
+			<param name="rgbd/max" value="$(arg rgbd/max)" />
+
+			<param name="lidar/max_range" value="$(arg lidar/max_range)" />
+			<param name="lidar/hit" value="$(arg lidar/hit)" />
+			<param name="lidar/miss" value="$(arg lidar/miss)" />
+			<param name="lidar/min" value="$(arg lidar/min)" />
+			<param name="lidar/max" value="$(arg lidar/max)" />
+
+			<!--remap from="cloud_in" to="/$(arg robot_name)/camera/depth/points2" /-->
+			<remap from="/iris_2/octomap_central_server/lidar_pc" to="/lidar_pc_filtered" />
+			<remap from="/iris_2/octomap_central_server/rgbd_pc" to="/rgbd_pc_filtered" />
+			<remap from="/iris_2/octomap_full" to="/iris_2/octomap_central_server/octomap_full"/>
+		</node>
+	</group>
+</launch>

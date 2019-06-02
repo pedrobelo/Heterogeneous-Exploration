@@ -1,0 +1,50 @@
+<?xml version="1.0" ?>
+<launch>
+  <arg name="path" default="empty_room_big/stl" />
+
+  <arg name="param_file" default="$(find stl_exploration)/config/$(arg path).yaml" />
+  <arg name="robot_name" default="iris_1"/>
+
+  <group ns="$(arg robot_name)">
+    <group ns="stl_aeplanner">
+
+      <!--include file="$(find he_launch)/launch/exploration/stl_aeplanner_nodelet.launch">
+        <arg name="robot_name" value="$(arg robot_name)"/>
+      </include-->
+
+      <include file="$(find he_launch)/launch/exploration/fly_to.launch">
+        <arg name="robot_name" value="$(arg robot_name)"/>
+      </include>
+
+      <include file="$(find he_launch)/launch/exploration/octomap_server.launch">
+        <arg name="robot_name" value="$(arg robot_name)"/>
+      </include>
+
+      <include file="$(find he_launch)/launch/exploration/stl_frontier_planner.launch">
+        <arg name="path" value="$(arg path)" />
+        <arg name="param_file" value="$(arg param_file)" />
+      </include>
+
+      <include file="$(find he_launch)/launch/exploration/pig_cpp.launch">
+        <arg name="robot_name" value="$(arg robot_name)"/>
+      </include>
+
+      <node name="stl_exploration" pkg="stl_exploration" type="stl_exploration" output="screen">
+        <remap from="/mavros/local_position/pose" to="/$(arg robot_name)/mavros/local_position/pose"/>
+        <remap from="/mavros/setpoint_position/local" to="/$(arg robot_name)/mavros/setpoint_position/local"/>
+      </node>
+      <rosparam command="load" file="$(arg param_file)" />
+    </group>
+
+    <!-- Increase Mavros publishing frequency -->
+    <!-- <node name="mavros_mavcmd" pkg="mavros" type="mavcmd" args="-n /mavros long 511 32 100000 0 0 0 0 0" /> -->
+
+    <!--node pkg="stl_evaluation" type="stl_evaluation_node" name="stl_evaluation_node" output="screen" required="true">
+      <remap from="/mavros/local_position/pose" to="/$(arg robot_name)/mavros/local_position/pose"/>
+      <remap from="/stl_aeplanner/ltl_stats" to="/$(arg robot_name)/stl_aeplanner/ltl_stats"/>
+      <remap from="/stl_aeplanner/octomap_full" to="/$(arg robot_name)/stl_aeplanner/octomap_full"/>
+      <remap from="/stl_evaluation/volume" to="/$(arg robot_name)/stl_evaluation/volume"/>
+      <rosparam command="load" file="$(arg param_file)" />
+    </node-->
+  </group>
+</launch>

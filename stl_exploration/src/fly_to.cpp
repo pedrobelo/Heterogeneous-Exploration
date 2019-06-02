@@ -10,8 +10,11 @@ class FlyTo
 {
 private:
   ros::NodeHandle nh_;
+  ros::NodeHandle private_nh_;
   ros::Publisher pub_;
   actionlib::SimpleActionServer<stl_aeplanner_msgs::FlyToAction> as_;
+  std::string base_link_name, map_name;
+
 
   tf::TransformListener listener;
 
@@ -19,9 +22,12 @@ public:
   FlyTo()
     : pub_(nh_.advertise<geometry_msgs::PoseStamped>("fly_to_cmd", 1000))
     , as_(nh_, "fly_to", boost::bind(&FlyTo::execute, this, _1, &as_), false)
+    , private_nh_("~")
   {
     ROS_INFO("Starting fly to server");
     as_.start();
+    private_nh_.getParam("base_link_name", base_link_name);
+    private_nh_.getParam("map_name", map_name);
   }
   void execute(const stl_aeplanner_msgs::FlyToGoalConstPtr& goal,
                actionlib::SimpleActionServer<stl_aeplanner_msgs::FlyToAction>* as)
@@ -53,8 +59,8 @@ public:
       ROS_INFO_STREAM("Publishing goal to (" << p.x << ", " << p.y << ", " << p.z << ") ");
       pub_.publish(goal->pose);
 
-      listener.waitForTransform("/map", "/base_link", ros::Time(0), ros::Duration(10.0));
-      listener.lookupTransform("/map", "/base_link", ros::Time(0), transform);
+      listener.waitForTransform(map_name, base_link_name, ros::Time(0), ros::Duration(10.0));
+      listener.lookupTransform(map_name, base_link_name, ros::Time(0), transform);
 
       geometry_msgs::Point q;
       q.x = (float)transform.getOrigin().x();
