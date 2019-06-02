@@ -37,6 +37,13 @@ STLAEPlanner::STLAEPlanner(const ros::NodeHandle& nh)
   max_sampling_radius_squared_ = pow(params_.max_sampling_radius, 2.0);
 
   as_.start();
+
+  std::string ns = ros::this_node::getNamespace();
+  frame_id_ = "map";
+  if (!ros::param::get(ns + "/he/robot_name", frame_id_))
+    ROS_WARN("No frame_id specified, default is map");
+
+  frame_id_.append("/map");
 }
 
 void STLAEPlanner::execute(const stl_aeplanner_msgs::aeplannerGoalConstPtr& goal)
@@ -99,7 +106,7 @@ void STLAEPlanner::execute(const stl_aeplanner_msgs::aeplannerGoalConstPtr& goal
       createRRTMarkerArray(root, stl_rtree, current_state, ltl_lambda_, ltl_min_distance_, ltl_max_distance_,
                            ltl_min_distance_active_, ltl_max_distance_active_, ltl_max_search_distance_,
                            params_.bounding_radius, ltl_step_size_, ltl_routers_, ltl_routers_active_, params_.lambda,
-                           ltl_min_altitude_active_, ltl_max_altitude_active_, ltl_min_altitude_, ltl_max_altitude_));
+                           ltl_min_altitude_active_, ltl_max_altitude_active_, ltl_min_altitude_, ltl_max_altitude_, frame_id_));
   ROS_WARN("publishRecursive");
   publishEvaluatedNodesRecursive(root);
 
@@ -655,7 +662,7 @@ void STLAEPlanner::agentPoseCallback(const geometry_msgs::PoseStamped& msg)
     ltl_path_.poses.push_back(msg);
 
     ROS_DEBUG("Publish LTL Path");
-    ltl_path_.header.frame_id = "map";
+    ltl_path_.header.frame_id = frame_id_;
     ltl_path_.header.stamp = ros::Time::now();
     ltl_path_pub_.publish(ltl_path_);
   }

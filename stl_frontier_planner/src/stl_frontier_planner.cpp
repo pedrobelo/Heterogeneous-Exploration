@@ -32,6 +32,10 @@ STLFrontierPlanner::STLFrontierPlanner(const ros::NodeHandle& nh)
     ROS_WARN("No overshoot paramerer specified, default is 0.5 m");
   if (!ros::param::get(ns + "/aep/tree/extension_range", extension_range_))
     ROS_WARN("No extension range specified, default is 1.0 m");
+  if (!ros::param::get(ns + "/he/robot_name", frame_id_))
+    ROS_WARN("No frame_id specified, default is map");
+
+  frame_id_.append("/map");
 
   if (!ros::param::get(ns + "/boundary/min", boundary_min))
   {

@@ -97,6 +97,7 @@ private:
   std::vector<std::pair<octomap::point3d, double>> ltl_search_distances_;
   double ltl_step_size_;
   std::map<int, std::pair<geometry_msgs::Pose, double>> ltl_routers_;
+  std::string frame_id_;
 
   double max_sampling_radius_squared_;
 

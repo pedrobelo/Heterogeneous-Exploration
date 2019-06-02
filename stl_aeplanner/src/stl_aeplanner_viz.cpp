@@ -9,13 +9,14 @@ visualization_msgs::MarkerArray createRRTMarkerArray(std::shared_ptr<RRTNode> ro
                                                      double radius, double step_size,
                                                      std::map<int, std::pair<geometry_msgs::Pose, double>> routers,
                                                      bool routers_active, double lambda, bool min_altitude_active,
-                                                     bool max_altitude_active, double min_altitude, double max_altitude)
+                                                     bool max_altitude_active, double min_altitude, double max_altitude,
+                                                     std::string frame_id)
 {
   int id = 0;
   visualization_msgs::MarkerArray marker_array;
   recurse(root, &marker_array, &id, rtree, current_state, ltl_lambda, min_distance, max_distance, min_distance_active,
           max_distance_active, max_search_distance, radius, step_size, routers, routers_active, lambda,
-          min_altitude_active, max_altitude_active, min_altitude, max_altitude);
+          min_altitude_active, max_altitude_active, min_altitude, max_altitude, frame_id);
 
   return marker_array;
 }
@@ -24,7 +25,7 @@ void recurse(std::shared_ptr<RRTNode> node, visualization_msgs::MarkerArray* mar
              double max_distance, bool min_distance_active, bool max_distance_active, double max_search_distance,
              double radius, double step_size, std::map<int, std::pair<geometry_msgs::Pose, double>> routers,
              bool routers_active, double lambda, bool min_altitude_active, bool max_altitude_active,
-             double min_altitude, double max_altitude)
+             double min_altitude, double max_altitude, std::string frame_id)
 {
   for (std::vector<std::shared_ptr<RRTNode>>::iterator child_it = node->children_.begin();
        child_it != node->children_.end(); ++child_it)
@@ -33,12 +34,12 @@ void recurse(std::shared_ptr<RRTNode> node, visualization_msgs::MarkerArray* mar
     if (child)
       recurse(child, marker_array, id, rtree, current_state, ltl_lambda, min_distance, max_distance,
               min_distance_active, max_distance_active, max_search_distance, radius, step_size, routers, routers_active,
-              lambda, min_altitude_active, max_altitude_active, min_altitude, max_altitude);
+              lambda, min_altitude_active, max_altitude_active, min_altitude, max_altitude, frame_id);
     marker_array->markers.push_back(
-        createEdgeMarker(child, (*id), "map", rtree, current_state, ltl_lambda, min_distance, max_distance,
+        createEdgeMarker(child, (*id), frame_id, rtree, current_state, ltl_lambda, min_distance, max_distance,
                          min_distance_active, max_distance_active, max_search_distance, radius, step_size, routers,
                          routers_active, lambda, min_altitude_active, max_altitude_active, min_altitude, max_altitude));
-    marker_array->markers.push_back(createNodeMarker(child, (*id)++, "map"));
+    marker_array->markers.push_back(createNodeMarker(child, (*id)++, frame_id));
   }
 
   visualization_msgs::MarkerArray m;

@@ -96,6 +96,8 @@ private:
   double resolution_;
   double range_;
 
+  std::string frame_id_;
+
 public:
   PIG(ros::NodeHandle& nh);
 

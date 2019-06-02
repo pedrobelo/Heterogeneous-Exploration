@@ -145,6 +145,13 @@ int main(int argc, char** argv)
   int iteration = 0;
   int actions_taken = 1;
 
+  std::string ns = ros::this_node::getNamespace();
+  std::string frame_id_;
+  if (!ros::param::get(ns + "/he/robot_name", frame_id_))
+    ROS_WARN("No frame_id specified, default is map");
+
+  frame_id_.append("/map");
+
   ros::Time start = ros::Time::now();
   while (ros::ok())
   {
@@ -152,7 +159,7 @@ int main(int argc, char** argv)
     stl_aeplanner_msgs::aeplannerGoal aep_goal;
     aep_goal.header.stamp = ros::Time::now();
     aep_goal.header.seq = iteration;
-    aep_goal.header.frame_id = "map";
+    aep_goal.header.frame_id = frame_id_;
     aep_goal.actions_taken = actions_taken;
     aep_ac.sendGoal(aep_goal);
 
@@ -187,7 +194,7 @@ int main(int argc, char** argv)
     {
       stl_aeplanner_msgs::rrtGoal rrt_goal;
       rrt_goal.start.header.stamp = ros::Time::now();
-      rrt_goal.start.header.frame_id = "map";
+      rrt_goal.start.header.frame_id = frame_id_;
       rrt_goal.start.pose = last_pose.pose;
       if (!aep_ac.getResult()->frontiers.poses.size())
       {

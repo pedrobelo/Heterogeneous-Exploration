@@ -57,6 +57,12 @@ PIG::PIG(ros::NodeHandle& nh)
   hyper_l_ = 1.0;
   hyper_sigma_f_ = 1.0;
   hyper_sigma_n_ = 0.1;
+
+  std::string ns = ros::this_node::getNamespace();
+  frame_id_="map";
+  if (!ros::param::get(ns + "/he/robot_name", frame_id_))
+    ROS_WARN("No frame_id specified, default is map");
+  frame_id_.append("/map");
 }
 
 bool PIG::gpQueryCallback(stl_aeplanner_msgs::Query::Request& req, stl_aeplanner_msgs::Query::Response& res)
@@ -272,7 +278,7 @@ void PIG::rvizCallback(const ros::TimerEvent& event)
 visualization_msgs::Marker PIG::pointToMarker(unsigned int id, Eigen::Vector3d point, double v, double a)
 {
   visualization_msgs::Marker marker;
-  marker.header.frame_id = "map";
+  marker.header.frame_id = frame_id_;
   marker.type = marker.CUBE;
   marker.action = marker.ADD;
   marker.id = id;
@@ -295,7 +301,7 @@ visualization_msgs::Marker PIG::pointToMarker(unsigned int id, Eigen::Vector3d p
 visualization_msgs::Marker PIG::nodeToMarker(unsigned int id, const Node node)
 {
   visualization_msgs::Marker marker;
-  marker.header.frame_id = "map";
+  marker.header.frame_id = frame_id_;
   marker.type = marker.SPHERE;
   marker.action = marker.ADD;
   marker.id = id;

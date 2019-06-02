@@ -26,8 +26,21 @@ public:
   {
     ROS_INFO("Starting fly to server");
     as_.start();
-    private_nh_.getParam("base_link_name", base_link_name);
-    private_nh_.getParam("map_name", map_name);
+
+    std::string ns = ros::this_node::getNamespace();
+    std::string robot_name;
+    if (!ros::param::get(ns + "/he/robot_name", robot_name))
+    {
+      robot_name = "iris_0";
+      ROS_WARN("No robot_name specified. Looking for %s. Default is iris_0.",
+               (ns + "/he/robot_name").c_str());
+    }
+
+    base_link_name = robot_name;
+    base_link_name.append("/base_link");
+
+    map_name = robot_name;
+    map_name.append("/map");
   }
   void execute(const stl_aeplanner_msgs::FlyToGoalConstPtr& goal,
                actionlib::SimpleActionServer<stl_aeplanner_msgs::FlyToAction>* as)
