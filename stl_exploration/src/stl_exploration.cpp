@@ -77,7 +77,7 @@ int main(int argc, char** argv)
   initial_positions.emplace_back(init_pose->pose.position.x, init_pose->pose.position.y,
                                  0.0, init_yaw);
   initial_positions.emplace_back(init_pose->pose.position.x, init_pose->pose.position.y,
-                                 0.5, init_yaw);
+                                 1, init_yaw);
   double move_forward_distance = 0.0;
   double yaw_radians = M_PI;
   initial_positions.emplace_back(

@@ -17,57 +17,62 @@
 
 	<node name="pc_handle" pkg="octomap_central_server" type="pc_handle" output="screen">
 		<param name="distance_threshold" value="$(arg distance_threshold)"/>
-		<remap from="/pc_handle/cloud_in" to="/cloud_in" />
-		<remap from="/pc_handle/cloud_out" to="/cloud_in_filtered" />
+		<remap from="/rgbd_pc" to="/iris_1/virtual_camera/depth/points" />
 	</node>
 
 	<group ns="iris_1">
-		<node name="octomap_central_server" pkg="octomap_central_server" type="octomap_central_server">
-			<param name="resolution" value="$(arg resolution)" />
-			<param name="publish_free_space" value="true" />
-			<param name="frame_id" type="string" value="iris_1/map" />
-			
-			<param name="rgbd/max_range" value="$(arg rgbd/max_range)" />
-			<param name="rgbd/hit" value="$(arg rgbd/hit)" />
-			<param name="rgbd/miss" value="$(arg rgbd/miss)" />
-			<param name="rgbd/min" value="$(arg rgbd/min)" />
-			<param name="rgbd/max" value="$(arg rgbd/max)" />
+		<group ns="stl_aeplanner">
+			<node name="octomap_central_server" pkg="octomap_central_server" type="octomap_central_server">
+				<param name="resolution" value="$(arg resolution)" />
+				<param name="publish_free_space" value="true" />
+				<param name="frame_id" type="string" value="iris_1/map" />
+				
+				<param name="rgbd/max_range" value="$(arg rgbd/max_range)" />
+				<param name="rgbd/hit" value="$(arg rgbd/hit)" />
+				<param name="rgbd/miss" value="$(arg rgbd/miss)" />
+				<param name="rgbd/min" value="$(arg rgbd/min)" />
+				<param name="rgbd/max" value="$(arg rgbd/max)" />
 
-			<param name="lidar/max_range" value="$(arg lidar/max_range)" />
-			<param name="lidar/hit" value="$(arg lidar/hit)" />
-			<param name="lidar/miss" value="$(arg lidar/miss)" />
-			<param name="lidar/min" value="$(arg lidar/min)" />
-			<param name="lidar/max" value="$(arg lidar/max)" />
+				<param name="lidar/max_range" value="$(arg lidar/max_range)" />
+				<param name="lidar/hit" value="$(arg lidar/hit)" />
+				<param name="lidar/miss" value="$(arg lidar/miss)" />
+				<param name="lidar/min" value="$(arg lidar/min)" />
+				<param name="lidar/max" value="$(arg lidar/max)" />
 
-			<!--remap from="cloud_in" to="/$(arg robot_name)/camera/depth/points2" /-->
-			<remap from="/iris_1/octomap_central_server/lidar_pc" to="/lidar_pc_filtered" />
-			<remap from="/iris_1/octomap_central_server/rgbd_pc" to="/rgbd_pc_filtered" />
-			<remap from="/iris_1/octomap_full" to="/iris_1/octomap_central_server/octomap_full"/>
-		</node>
+				<!--remap from="cloud_in" to="/$(arg robot_name)/camera/depth/points2" /-->
+				<remap from="/iris_1/stl_aeplanner/octomap_central_server/lidar_pc" to="/lidar_pc_filtered" />
+				<remap from="/iris_1/stl_aeplanner/octomap_central_server/rgbd_pc" to="/rgbd_pc_filtered" />
+				<remap from="/iris_1/stl_aeplanner/octomap_central_server/parameter_descriptions" to="/iris_1/stl_aeplanner/parameter_descriptions" />
+				<remap from="/iris_1/stl_aeplanner/octomap_central_server/parameter_updates" to="/iris_1/stl_aeplanner/parameter_updates" />
+			</node>
+		</group>
 	</group>
 
 	<group ns="iris_2">
-		<node name="octomap_central_server" pkg="octomap_central_server" type="octomap_central_server">
-			<param name="resolution" value="$(arg resolution)" />
-			<param name="publish_free_space" value="true" />
-			<param name="frame_id" type="string" value="iris_2/map" />
-			
-			<param name="rgbd/max_range" value="$(arg rgbd/max_range)" />
-			<param name="rgbd/hit" value="$(arg rgbd/hit)" />
-			<param name="rgbd/miss" value="$(arg rgbd/miss)" />
-			<param name="rgbd/min" value="$(arg rgbd/min)" />
-			<param name="rgbd/max" value="$(arg rgbd/max)" />
+		<group ns="stl_aeplanner">
+			<node name="octomap_central_server" pkg="octomap_central_server" type="octomap_central_server">
+				<param name="resolution" value="$(arg resolution)" />
+				<param name="publish_free_space" value="true" />
+				<param name="frame_id" type="string" value="iris_2/map" />
+				
+				<param name="rgbd/max_range" value="$(arg rgbd/max_range)" />
+				<param name="rgbd/hit" value="$(arg rgbd/hit)" />
+				<param name="rgbd/miss" value="$(arg rgbd/miss)" />
+				<param name="rgbd/min" value="$(arg rgbd/min)" />
+				<param name="rgbd/max" value="$(arg rgbd/max)" />
 
-			<param name="lidar/max_range" value="$(arg lidar/max_range)" />
-			<param name="lidar/hit" value="$(arg lidar/hit)" />
-			<param name="lidar/miss" value="$(arg lidar/miss)" />
-			<param name="lidar/min" value="$(arg lidar/min)" />
-			<param name="lidar/max" value="$(arg lidar/max)" />
+				<param name="lidar/max_range" value="$(arg lidar/max_range)" />
+				<param name="lidar/hit" value="$(arg lidar/hit)" />
+				<param name="lidar/miss" value="$(arg lidar/miss)" />
+				<param name="lidar/min" value="$(arg lidar/min)" />
+				<param name="lidar/max" value="$(arg lidar/max)" />
 
-			<!--remap from="cloud_in" to="/$(arg robot_name)/camera/depth/points2" /-->
-			<remap from="/iris_2/octomap_central_server/lidar_pc" to="/lidar_pc_filtered" />
-			<remap from="/iris_2/octomap_central_server/rgbd_pc" to="/rgbd_pc_filtered" />
-			<remap from="/iris_2/octomap_full" to="/iris_2/octomap_central_server/octomap_full"/>
-		</node>
+				<!--remap from="cloud_in" to="/$(arg robot_name)/camera/depth/points2" /-->
+				<remap from="/iris_2/stl_aeplanner/octomap_central_server/lidar_pc" to="/lidar_pc_filtered" />
+				<remap from="/iris_2/stl_aeplanner/octomap_central_server/rgbd_pc" to="/rgbd_pc_filtered" />
+				<remap from="/iris_2/stl_aeplanner/octomap_central_server/parameter_descriptions" to="/iris_1/stl_aeplanner/parameter_descriptions" />
+				<remap from="/iris_2/stl_aeplanner/octomap_central_server/parameter_updates" to="/iris_1/stl_aeplanner/parameter_updates" />
+			</node>
+		</group>
 	</group>
 </launch>

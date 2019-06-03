@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <launch>
-	<arg name="world" default="$(find he_launch)/worlds/simple2.world"/>
+	<arg name="world" default="$(find he_launch)/worlds/aep_office.world"/>
 	<!-- Gazebo sim -->
 	<include file="$(find gazebo_ros)/launch/empty_world.launch">
 		<arg name="gui" value="false"/>
