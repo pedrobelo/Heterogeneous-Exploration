@@ -10,7 +10,7 @@
 	<arg name="rgbd/max" default="0.97" />
 
 	<arg name="lidar/max_range" default="20" />
-	<arg name="lidar/hit" default="0.54" />
+	<arg name="lidar/hit" default="0.56" />
 	<arg name="lidar/miss" default="0.43" />
 	<arg name="lidar/min" default="0.12" />
 	<arg name="lidar/max" default="0.97" />

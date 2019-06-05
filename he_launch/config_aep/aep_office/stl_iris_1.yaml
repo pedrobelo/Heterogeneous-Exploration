@@ -34,8 +34,8 @@ world_frame: "iris_1/map"
 
 # bounding box: necessary to limit the simulation 
 # scenario (smaller than actual gazebo scenario)
-boundary/min: [ -27.0,  -3.0, 0.2]
-boundary/max: [ 3.0,   17.0,  2.5]
+boundary/min: [ -50.0,  -50.0, 0.2]
+boundary/max: [ 50.0,   50.0,  2.5]
 
 lambda: 0.25
 min_distance: 1.2
@@ -56,5 +56,5 @@ he/he_active: false
 he/sensor: "camera"
 he/mu: 120
 he/sigma: 50
-he/constant: 100
+he/constant: 1
 he/robot_name: "iris_1"
