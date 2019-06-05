@@ -9,7 +9,7 @@ raycast/dr:     0.1
 raycast/dphi:   10
 raycast/dtheta: 10
 
-system/bbx/r: 0.4
+system/bbx/r: 0.75
 system/bbx/overshoot: 0.25
 
 aep/gain/r_min: 0
@@ -40,8 +40,8 @@ boundary/max: [ 3.0,   17.0,  2.5]
 lambda: 0.25
 min_distance: 1.2
 max_distance: 3.0
-min_distance_active: true
-max_distance_active: true
+min_distance_active: false
+max_distance_active: false
 routers_active: false
 distance_add_path: 0.1
 max_search_distance: 10.0

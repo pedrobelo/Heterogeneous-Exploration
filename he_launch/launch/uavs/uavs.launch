@@ -1,6 +1,8 @@
 <?xml version="1.0"?>
 
 <launch>
+  <arg name="path" default="aep_office/stl" />
+
 
   <arg name="sdf1" default="$(find he_launch)/models/uav/iris_1.sdf"/>
   <arg name="sdf2" default="$(find he_launch)/models/uav/iris_2.sdf"/>
@@ -84,6 +86,11 @@
       <remap from="/virtual_camera/depth/camera_info" to="/iris_1/virtual_camera/depth/camera_info"/>
       <remap from="/virtual_camera/depth/image_raw" to="/iris_1/virtual_camera/depth/image_raw"/>
     </node>
+
+    <!--include file="$(find he_launch)/launch/exploration/exploration.launch">
+      <arg name="robot_name" value="iris_1" />
+      <arg name="path" value="$(arg path)_iris_1" />
+    </include-->
   </group>
 
   <group ns="iris_2">
@@ -122,7 +129,15 @@
       <arg name="scan" value="/iris_2/scan"/>
       <arg name="cloud" value="/lidar_pc"/>
     </include>
+
+    <!--include file="$(find he_launch)/launch/exploration/exploration.launch">
+      <arg name="robot_name" value="iris_2" />
+      <arg name="path" value="$(arg path)_iris_2" />
+    </include-->
+
   </group>
+
+
 
  
 </launch>

@@ -8,9 +8,9 @@
   <group ns="$(arg robot_name)">
     <group ns="stl_aeplanner">
 
-      <!--include file="$(find he_launch)/launch/exploration/stl_aeplanner_nodelet.launch">
+      <include file="$(find he_launch)/launch/exploration/stl_aeplanner_nodelet.launch">
         <arg name="robot_name" value="$(arg robot_name)"/>
-      </include-->
+      </include>
 
       <include file="$(find he_launch)/launch/exploration/fly_to.launch">
         <arg name="robot_name" value="$(arg robot_name)"/>

@@ -383,7 +383,7 @@ Eigen::Vector4d STLAEPlanner::restrictDistance(Eigen::Vector4d nearest, Eigen::V
 
 std::pair<double, double> STLAEPlanner::getGain(std::shared_ptr<RRTNode> node)
 {
-  stl_aeplanner_msgs::Query srv;
+  /*stl_aeplanner_msgs::Query srv;
   srv.request.point.x = node->state_[0];
   srv.request.point.y = node->state_[1];
   srv.request.point.z = node->state_[2];
@@ -396,7 +396,7 @@ std::pair<double, double> STLAEPlanner::getGain(std::shared_ptr<RRTNode> node)
       double yaw = srv.response.yaw;
       return std::make_pair(gain, yaw);
     }
-  }
+  }*/
 
   node->gain_explicitly_calculated_ = true;
   return gainCubature(node->state_);
@@ -949,7 +949,7 @@ std::pair<double, double> STLAEPlanner::gainCubatureLidar(Eigen::Vector4d state)
     {
       vec[0] = state[0] + r * cos(theta_rad);
       vec[1] = state[1] + r * sin(theta_rad);
-      vec[2] = state[2] + r;
+      vec[2] = state[2];
       dir = vec - origin;
 
       octomap::point3d query(vec[0], vec[1], vec[2]);
@@ -974,7 +974,7 @@ std::pair<double, double> STLAEPlanner::gainCubatureLidar(Eigen::Vector4d state)
           g += params_.constant*coefficient*((2 * r * r * dr + 1 / 6 * dr * dr * dr) * dtheta_rad * sin(dphi_rad / 2));
         }
         else
-          g += (2 * r * r * dr + 1 / 6 * dr * dr * dr) * dtheta_rad * sin(dphi_rad / 2);
+          g += params_.constant*(2 * r * r * dr + 1 / 6 * dr * dr * dr) * dtheta_rad * sin(dphi_rad / 2);
       }
     }
 

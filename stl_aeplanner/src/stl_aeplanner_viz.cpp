@@ -64,7 +64,7 @@ visualization_msgs::Marker createNodeMarker(std::shared_ptr<RRTNode> node, int i
   a.pose.orientation.y = quat.y();
   a.pose.orientation.z = quat.z();
   a.pose.orientation.w = quat.w();
-  a.scale.x = std::max(node->gain_, 0.05);
+  a.scale.x = std::max(node->score_, 0.05);
   a.scale.y = 0.1;
   a.scale.z = 0.1;
   a.color.r = 167.0 / 255.0;
