@@ -1,5 +1,128 @@
 <?xml version="1.0"?>
+
 <launch>
-	<include file="$(find he_launch)/launch/uavs/camera_uav.launch"/>
-	<include file="$(find he_launch)/launch/uavs/lidar_uav.launch"/>
+
+  <arg name="sdf1" default="$(find he_launch)/models/uav/iris_1.sdf"/>
+  <arg name="sdf2" default="$(find he_launch)/models/uav/iris_2.sdf"/>
+  <arg name="pluginlists_yaml" default="$(find he_launch)/config/px4_pluginlists.yaml" />
+  <arg name="config_yaml1" default="$(find he_launch)/config/px4_config_1.yaml" />
+  <arg name="config_yaml2" default="$(find he_launch)/config/px4_config_2.yaml" />
+
+  <!-- MAVROS posix SITL environment launch script -->
+  <!-- launches MAVROS, PX4 SITL, Gazebo environment, and spawns vehicle -->
+  <!-- vehicle pose -->
+  <arg name="x" default="0"/>
+  <arg name="y" default="0"/>
+  <arg name="z" default="0"/>
+  <arg name="R" default="0"/>
+  <arg name="P" default="0"/>
+  <arg name="Y" default="0"/>
+  <!-- vehicle model and world -->
+  <arg name="est" default="ekf2"/>
+  <arg name="vehicle1" default="iris_1"/>
+  <arg name="vehicle2" default="iris_2"/>
+  <!-- gazebo configs -->
+  <arg name="respawn_gazebo" default="false"/>
+  <!-- MAVROS configs -->
+  <arg name="gcs_url" default=""/>
+  <arg name="fcu_url1" default="udp://:14540@localhost:14557"/>
+  <arg name="fcu_url2" default="udp://:14541@localhost:14559"/>
+  <arg name="tgt_system1" default="1" />
+  <arg name="tgt_system2" default="2" />
+  <arg name="tgt_component" default="1" />
+  <arg name="log_output" default="screen" />
+  <arg name="fcu_protocol" default="v2.0" />
+  <arg name="respawn_mavros" default="false"/>
+
+  <arg name="rcS1" default="$(find he_launch)/config/iris_1" />
+  <arg name="rcS2" default="$(find he_launch)/config/iris_2" />
+
+  <group ns="iris_1">
+    <!-- tf between world frame and map frame -->
+    <node pkg="tf2_ros" type="static_transform_publisher" name="world2map" args="$(arg x) $(arg y) $(arg z) $(arg R) $(arg P) $(arg Y) world iris_1/map" />
+
+    <node pkg="tf2_ros" type="static_transform_publisher" name="primesense_broadcaster" args="0.05 0 0.13 -1.57079633 0 -1.57079633 iris_1/base_link iris_1/camera_link" />
+    <!-- PX4 SITL and Gazebo -->
+    <include file="$(find he_launch)/launch/uavs/posix_sitl.launch">
+        <arg name="x" value="$(arg x)"/>
+        <arg name="y" value="$(arg y)"/>
+        <arg name="z" value="$(arg z)"/>
+        <arg name="R" value="$(arg R)"/>
+        <arg name="P" value="$(arg P)"/>
+        <arg name="Y" value="$(arg Y)"/>
+        <arg name="vehicle" value="$(arg vehicle1)"/>
+        <arg name="sdf" value="$(arg sdf1)"/>
+        <arg name="rcS" value="$(arg rcS1)" />
+    </include>
+    <!-- MAVROS -->
+    <include file="$(find mavros)/launch/node.launch">
+      <arg name="pluginlists_yaml" value="$(arg pluginlists_yaml)" />
+      <arg name="config_yaml" value="$(arg config_yaml1)" />
+
+      <arg name="fcu_url" value="$(arg fcu_url1)" />
+      <arg name="gcs_url" value="$(arg gcs_url)" />
+      <arg name="tgt_system" value="$(arg tgt_system1)" />
+      <arg name="tgt_component" value="$(arg tgt_component)" />
+      <arg name="log_output" value="$(arg log_output)" />
+      <arg name="fcu_protocol" value="$(arg fcu_protocol)" />
+      <arg name="respawn_mavros" default="$(arg respawn_mavros)" />
+    </include>
+
+    <!-- Nodelet manager for camera-->
+    <node pkg="nodelet" type="nodelet" args="manager" name="camera_manager" output="screen"/>
+
+    <node pkg="nodelet" type="nodelet" name="image_to_points" args="load depth_image_proc/point_cloud_xyz camera_manager --no-bond">
+      <remap from="camera_info" to="/iris_1/virtual_camera/depth/camera_info" />
+      <remap from="image_rect" to="/iris_1/virtual_camera/depth/image_raw" />
+      <remap from="points" to="/iris_1/virtual_camera/depth/points" />
+      <param name="queue_size" value="100" />
+    </node>
+
+    <node pkg="stl_exploration" type="image_maxing.py" name="image_maxing" output="screen">
+      <remap from="/camera/depth/camera_info" to="/iris_1/camera/depth/camera_info"/>
+      <remap from="/camera/depth/image_raw" to="/iris_1/camera/depth/image_raw"/>
+      <remap from="/virtual_camera/depth/camera_info" to="/iris_1/virtual_camera/depth/camera_info"/>
+      <remap from="/virtual_camera/depth/image_raw" to="/iris_1/virtual_camera/depth/image_raw"/>
+    </node>
+  </group>
+
+  <group ns="iris_2">
+    <!-- tf between world frame and map frame -->        
+    <node pkg="tf2_ros" type="static_transform_publisher" name="world2map" args="1 $(arg y) $(arg z) $(arg R) $(arg P) $(arg Y) world iris_2/map" />
+    <!-- tf between base_link and lase_link -->        
+    <node pkg="tf2_ros" type="static_transform_publisher" name="base_link2laser_link" args="0.02 0 0.08 0 0 0 iris_2/base_link iris_2/laser_link" />
+    <!-- PX4 SITL and Gazebo -->
+    <include file="$(find he_launch)/launch/uavs/posix_sitl.launch">
+        <arg name="x" value="1"/>
+        <arg name="y" value="$(arg y)"/>
+        <arg name="z" value="$(arg z)"/>
+        <arg name="R" value="$(arg R)"/>
+        <arg name="P" value="$(arg P)"/>
+        <arg name="Y" value="$(arg Y)"/>
+        <arg name="vehicle" value="$(arg vehicle2)"/>
+        <arg name="sdf" value="$(arg sdf2)"/>
+        <arg name="rcS" value="$(arg rcS2)" />
+    </include>
+    <!-- MAVROS -->
+    <include file="$(find mavros)/launch/node.launch">
+      <arg name="pluginlists_yaml" value="$(arg pluginlists_yaml)" />
+      <arg name="config_yaml" value="$(arg config_yaml2)" />
+
+      <arg name="fcu_url" value="$(arg fcu_url2)" />
+      <arg name="gcs_url" value="$(arg gcs_url)" />
+      <arg name="tgt_system" value="$(arg tgt_system2)" />
+      <arg name="tgt_component" value="$(arg tgt_component)" />
+      <arg name="log_output" value="$(arg log_output)" />
+      <arg name="fcu_protocol" value="$(arg fcu_protocol)" />
+      <arg name="respawn_mavros" default="$(arg respawn_mavros)" />
+    </include>
+
+    <!-- LaserScan to PointCloud -->
+    <include file="$(find he_launch)/launch/uavs/laserscan_to_pointcloud.launch">
+      <arg name="scan" value="/iris_2/scan"/>
+      <arg name="cloud" value="/lidar_pc"/>
+    </include>
+  </group>
+
+ 
 </launch>

@@ -8,8 +8,8 @@
 			<visual name="visual">
 				<geometry>
 					<mesh>
-		      			<uri>model://hokuyo/meshes/hokuyo.dae</uri>
-		    		</mesh>
+      			<uri>model://hokuyo/meshes/hokuyo.dae</uri>
+    			</mesh>
 				</geometry>
 			</visual>
 
@@ -27,19 +27,19 @@
 			
 			<sensor type="ray" name="head_hokuyo_sensor">
 				<pose>0 0 0 0 0 0</pose>
-        		<visualize>false</visualize>
+        <visualize>false</visualize>
 				<update_rate>40</update_rate>
 				<ray>
 					<scan>
 						<horizontal>
-            				<samples>540</samples>
+              <samples>540</samples>
 							<resolution>1</resolution>
 							<min_angle>-2.35619449</min_angle>
 							<max_angle>2.35619449</max_angle>
 						</horizontal>
 					</scan>
 					<range>
-            			<min>0.35</min>
+            <min>0.35</min>
 						<max>20.0</max>
 						<resolution>0.01</resolution>
 					</range>
@@ -54,8 +54,7 @@
 					</noise>
 				</ray>
 				<plugin name="gazebo_ros_head_hokuyo_controller" filename="libgazebo_ros_laser.so">
-					<robotNamespace/>
-					<topicName>scan</topicName>
+					<topicName>/scan</topicName>
 					<frameName>laser_link</frameName>
 				</plugin>
 			</sensor>

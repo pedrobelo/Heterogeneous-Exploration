@@ -51,7 +51,7 @@ global_position:
   tf:
     send: false               # send TF?
     frame_id: "iris_1/map"  # TF frame_id
-    global_frame_id: "earth"  # TF earth frame_id
+    global_frame_id: "world"  # TF earth frame_id
     child_frame_id: "iris_1/base_link" # TF child_frame_id
 
 # imu_pub
@@ -94,7 +94,7 @@ setpoint_attitude:
   tf:
     listen: false           # enable tf listener (disable topic subscribers)
     frame_id: "iris_1/map"
-    child_frame_id: "iris_1/target_attitude"
+    child_frame_id: "target_attitude"
     rate_limit: 50.0
 
 # setpoint_position
@@ -102,7 +102,7 @@ setpoint_position:
   tf:
     listen: false           # enable tf listener (disable topic subscribers)
     frame_id: "iris_1/map"
-    child_frame_id: "iris_1/target_position"
+    child_frame_id: "target_position"
     rate_limit: 50.0
   mav_frame: LOCAL_NED
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <sdf version='1.6'>
-  <model name='iris_2'>
-    <link name='base_link_2'>
+  <model name='iris'>
+    <link name='base_link'>
       <pose frame=''>0 0 0 0 -0 0</pose>
       <inertial>
         <pose frame=''>0 0 0 0 -0 0</pose>
@@ -15,7 +15,7 @@
           <izz>0.0977</izz>
         </inertia>
       </inertial>
-      <collision name='base_link_2_inertia_collision'>
+      <collision name='base_link_inertia_collision'>
         <pose frame=''>0 0 0 0 -0 0</pose>
         <geometry>
           <box>
@@ -34,7 +34,7 @@
           </friction>
         </surface>
       </collision>
-      <visual name='base_link_2_inertia_visual'>
+      <visual name='base_link_inertia_visual'>
         <pose frame=''>0 0 0 0 -0 0</pose>
         <geometry>
           <mesh>
@@ -69,7 +69,7 @@
     </link>
     <joint name='/imu_joint' type='revolute'>
       <child>/imu_link</child>
-      <parent>base_link_2</parent>
+      <parent>base_link</parent>
       <axis>
         <xyz>1 0 0</xyz>
         <limit>
@@ -136,7 +136,7 @@
     </link>
     <joint name='rotor_0_joint' type='revolute'>
       <child>rotor_0</child>
-      <parent>base_link_2</parent>
+      <parent>base_link</parent>
       <axis>
         <xyz>0 0 1</xyz>
         <limit>
@@ -201,7 +201,7 @@
     </link>
     <joint name='rotor_1_joint' type='revolute'>
       <child>rotor_1</child>
-      <parent>base_link_2</parent>
+      <parent>base_link</parent>
       <axis>
         <xyz>0 0 1</xyz>
         <limit>
@@ -266,7 +266,7 @@
     </link>
     <joint name='rotor_2_joint' type='revolute'>
       <child>rotor_2</child>
-      <parent>base_link_2</parent>
+      <parent>base_link</parent>
       <axis>
         <xyz>0 0 1</xyz>
         <limit>
@@ -331,7 +331,7 @@
     </link>
     <joint name='rotor_3_joint' type='revolute'>
       <child>rotor_3</child>
-      <parent>base_link_2</parent>
+      <parent>base_link</parent>
       <axis>
         <xyz>0 0 1</xyz>
         <limit>
@@ -347,7 +347,7 @@
     </joint>
     <plugin name='rosbag' filename='libgazebo_multirotor_base_plugin.so'>
       <robotNamespace/>
-      <linkName>base_link_2</linkName>
+      <linkName>base_link</linkName>
       <rotorVelocitySlowdownSim>10</rotorVelocitySlowdownSim>
     </plugin>
     <plugin name='front_right_motor_model' filename='libgazebo_motor_model.so'>
@@ -432,7 +432,7 @@
       <serialDevice>/dev/ttyACM0</serialDevice>
       <baudRate>921600</baudRate>
       <qgc_addr>INADDR_ANY</qgc_addr>
-      <qgc_udp_port>14552</qgc_udp_port>
+      <qgc_udp_port>14550</qgc_udp_port>
       <hil_mode>0</hil_mode>
       <hil_state_level>0</hil_state_level>
       <vehicle_is_tailsitter>0</vehicle_is_tailsitter>
@@ -539,25 +539,25 @@
       <robotNamespace/>
       <linkName>/imu_link</linkName>
       <imuTopic>/imu</imuTopic>
-      <gyroscopeNoiseDensity>1.0e-05</gyroscopeNoiseDensity>
-      <gyroscopeRandomWalk>1.0e-05</gyroscopeRandomWalk>
-      <gyroscopeBiasCorrelationTime>1.0e-05</gyroscopeBiasCorrelationTime>
-      <gyroscopeTurnOnBiasSigma>1.0e-05</gyroscopeTurnOnBiasSigma>
-      <accelerometerNoiseDensity>1.0e-05</accelerometerNoiseDensity>
-      <accelerometerRandomWalk>1.0e-05</accelerometerRandomWalk>
-      <accelerometerBiasCorrelationTime>1.0e-05</accelerometerBiasCorrelationTime>
-      <accelerometerTurnOnBiasSigma>1.0e-05</accelerometerTurnOnBiasSigma>
+      <gyroscopeNoiseDensity>0</gyroscopeNoiseDensity>
+      <gyroscopeRandomWalk>0</gyroscopeRandomWalk>
+      <gyroscopeBiasCorrelationTime>1.0e-09</gyroscopeBiasCorrelationTime>
+      <gyroscopeTurnOnBiasSigma>1.0e-09</gyroscopeTurnOnBiasSigma>
+      <accelerometerNoiseDensity>0</accelerometerNoiseDensity>
+      <accelerometerRandomWalk>0</accelerometerRandomWalk>
+      <accelerometerBiasCorrelationTime>1.0e-09</accelerometerBiasCorrelationTime>
+      <accelerometerTurnOnBiasSigma>1.0e-09</accelerometerTurnOnBiasSigma>
     </plugin>
-  
-  <include>
-    <uri>model://hokuyo_lidar</uri>
-    <pose>0.02 0 0.08 0 0 0</pose>
-  </include>
-  
-  <joint name='hokuyo_lidar_joint' type='fixed'>
-    <child>hokuyo_lidar::hokuyo_link</child>
-    <parent>base_link_2</parent>
-  </joint>
-  
+	
+	<include>
+		<uri>model://hokuyo_lidar</uri>
+		<pose>0.02 0 0.08 0 0 0</pose>
+	</include>
+	
+	<joint name='hokuyo_lidar_joint' type='fixed'>
+		<child>hokuyo_lidar::hokuyo_link</child>
+		<parent>base_link</parent>
+	</joint>
+	
   </model>
 </sdf>
