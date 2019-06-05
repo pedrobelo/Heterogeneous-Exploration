@@ -965,8 +965,11 @@ std::pair<double, double> STLAEPlanner::gainCubatureLidar(Eigen::Vector4d state)
           g += params_.constant*coefficient*((2 * r * r * dr + 1 / 6 * dr * dr * dr) * dtheta_rad * sin(dphi_rad / 2));
         }
         // Break if occupied so we don't count any information gain behind a wall.
-        if (result->getLogOdds() > 0)
+        if (result->getLogOdds() > 0) {
+          if(params_.he_active)
+            gain_per_yaw[theta] += g;
           break;
+        }
       }
       else {
         if(params_.he_active) {
@@ -1065,8 +1068,11 @@ std::pair<double, double> STLAEPlanner::gainCubatureCamera(Eigen::Vector4d state
             g += params_.constant*coefficient*((2 * r * r * dr + 1 / 6 * dr * dr * dr) * dtheta_rad * sin(phi_rad) * sin(dphi_rad / 2));
           }
           // Break if occupied so we don't count any information gain behind a wall.
-          if (result->getLogOdds() > 0)
+          if (result->getLogOdds() > 0) {
+            if(params_.he_active)
+              gain_per_yaw[theta] += g;
             break;
+          }
         }
         else {
           if(params_.he_active) {
