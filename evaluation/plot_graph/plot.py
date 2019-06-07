@@ -23,8 +23,8 @@ with open('test1.txt','r') as csvfile:
         average1.append(float(row[2]))
 
         values = row[3:];
-        histogram_f1.append(values[0:len(values)/2])
-        histogram_o1.append(values[len(values)/2:len(values)+1])
+        histogram_f1.append([float(i) for i in values[0:len(values)/2]])
+        histogram_o1.append([float(i) for i in values[len(values)/2:len(values)+1]])
 
 with open('test2.txt','r') as csvfile:
     plots = csv.reader(csvfile, delimiter=' ')
@@ -34,8 +34,8 @@ with open('test2.txt','r') as csvfile:
         average2.append(float(row[2]))
 
         values = row[3:];
-        histogram_f2.append(values[0:len(values)/2])
-        histogram_o2.append(values[len(values)/2:len(values)+1])
+        histogram_f2.append([float(i) for i in values[0:len(values)/2]])
+        histogram_o2.append([float(i) for i in values[len(values)/2:len(values)+1]])
 
 aux = x1[0]
 x1[:] = [x - aux for x in x1]
@@ -77,7 +77,6 @@ plt.rc('axes', prop_cycle=plt.cycler('color', colors))
 plt.subplot(3,2,3)
 labels = []
 data = np.array(list(histogram_f1))
-print data
 for indx in range(0, num_plots):
     plt.plot(x1, data.transpose()[indx])
     labels.append(r'$%.2f - %.2f$' % (indx*0.5/num_plots, (indx+1)*0.5/num_plots))

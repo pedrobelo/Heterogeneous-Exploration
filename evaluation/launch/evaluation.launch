@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <launch>
-	<arg name="x_max" default="9"/>
-	<arg name="y_max" default="9"/>
+	<arg name="x_max" default="43"/>
+	<arg name="y_max" default="43"/>
 	<arg name="z_max" default="3"/>
-	<arg name="x_min" default="-1"/>
-	<arg name="y_min" default="-1"/>
-	<arg name="z_min" default="0"/>
+	<arg name="x_min" default="-3"/>
+	<arg name="y_min" default="-3"/>
+	<arg name="z_min" default="-1"/>
 	<arg name="file" default="/home/pedrobelo/Desktop/data123.txt"/>
 	<arg name="octomapTopic" default="/octomap_full"/>
 
