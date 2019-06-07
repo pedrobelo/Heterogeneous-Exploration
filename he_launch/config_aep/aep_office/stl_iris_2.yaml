@@ -54,7 +54,7 @@ max_altitude_active: false
 
 he/he_active: false
 he/sensor: "lidar"
-he/mu: 45
+he/mu: 50
 he/sigma: 50
 he/constant: 0.1
 he/robot_name: "iris_2"
