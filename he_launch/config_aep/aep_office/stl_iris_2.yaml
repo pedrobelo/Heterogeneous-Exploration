@@ -17,13 +17,13 @@ aep/gain/r_max: 20
 aep/gain/zero: 5
 aep/gain/lambda: 0.8
 aep/gain/sigma_thresh: 0.2
-aep/tree/extension_range: 1.8
+aep/tree/extension_range: 2
 aep/tree/max_sampling_radius: 30
 aep/tree/initial_iterations: 200
-aep/tree/cutoff_iterations: 400
+aep/tree/cutoff_iterations: 201
 
-rrt/min_nodes: 100
-rrt/max_nodes: 1000
+rrt/min_nodes: 500
+rrt/max_nodes: 501
 
 visualize_rays: false
 visualize_tree: true
@@ -52,9 +52,9 @@ min_altitude_active: false
 max_altitude_active: false
 
 
-he/he_active: false
+he/he_active: true
 he/sensor: "lidar"
 he/mu: 50
-he/sigma: 50
+he/sigma: 0.001
 he/constant: 0.1
 he/robot_name: "iris_2"

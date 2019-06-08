@@ -3,8 +3,8 @@
 	<include file="$(find he_launch)/launch/octomap_central_server/octomap_central_server.launch"/>
 	<include file="$(find he_launch)/launch/uavs/uavs.launch"/>
 	<include file="$(find evaluation)/launch/evaluation.launch">
-		<arg name="file" value="/$(find evaluation)/plot_graph/test2.txt"/>
-		<arg name="octomapTopic" value="/iris_2/stl_aeplanner/octomap_full"/>
+		<arg name="file" value="/$(find evaluation)/plot_graph/test1.txt"/>
+		<arg name="octomapTopic" value="/iris_1/stl_aeplanner/octomap_full"/>
 	</include>
 </launch>
 
