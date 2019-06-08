@@ -15,7 +15,7 @@ system/bbx/overshoot: 0.25
 aep/gain/r_min: 0
 aep/gain/r_max: 7
 aep/gain/zero: 2
-aep/gain/lambda: 2
+aep/gain/lambda: 1.3
 aep/gain/sigma_thresh: 0.2
 aep/tree/extension_range: 2
 aep/tree/max_sampling_radius: 30
@@ -52,9 +52,9 @@ min_altitude_active: false
 max_altitude_active: false
 
 
-he/he_active: true
+he/he_active: false
 he/sensor: "camera"
 he/mu: 60
-he/sigma: 18
-he/constant: 200
+he/sigma: 20
+he/constant: 300
 he/robot_name: "iris_1"
