@@ -44,6 +44,8 @@ STLAEPlanner::STLAEPlanner(const ros::NodeHandle& nh)
     ROS_WARN("No frame_id specified, default is map");
 
   frame_id_.append("/map");
+
+  ros::param::get(ns + "/he/robot_name", robot_name);
 }
 
 void STLAEPlanner::execute(const stl_aeplanner_msgs::aeplannerGoalConstPtr& goal)
@@ -82,11 +84,11 @@ void STLAEPlanner::execute(const stl_aeplanner_msgs::aeplannerGoalConstPtr& goal
   value_rtree rtree;
 
   ROS_WARN("Init");
-  std::shared_ptr<RRTNode> root = initialize(&rtree, current_state);
+  root_ = initialize(&rtree, current_state);
   ROS_WARN("expandRRT");
-  ROS_WARN_STREAM(root->gain_ << " " << root->children_.size());
-  if (root->gain_ > 0.75 or !root->children_.size() or
-      root->score(stl_rtree, ltl_lambda_, ltl_min_distance_, ltl_max_distance_, ltl_min_distance_active_,
+  ROS_WARN_STREAM(robot_name << "-->" << root_->gain_ << " " << root_->children_.size());
+  if (root_->gain_ > 0.75 or !root_->children_.size() or
+      root_->score(stl_rtree, ltl_lambda_, ltl_min_distance_, ltl_max_distance_, ltl_min_distance_active_,
                   ltl_max_distance_active_, ltl_max_search_distance_, params_.bounding_radius, ltl_step_size_,
                   ltl_routers_, ltl_routers_active_, params_.lambda, ltl_min_altitude_, ltl_max_altitude_,
                   ltl_min_altitude_active_, ltl_max_altitude_active_) < params_.zero_gain)
@@ -95,7 +97,7 @@ void STLAEPlanner::execute(const stl_aeplanner_msgs::aeplannerGoalConstPtr& goal
   }
   else
   {
-    best_node_ = root->children_[0];
+    best_node_ = root_->children_[0];
   }
 
   ROS_WARN("getCopyOfParent");
@@ -103,12 +105,12 @@ void STLAEPlanner::execute(const stl_aeplanner_msgs::aeplannerGoalConstPtr& goal
 
   ROS_WARN("createRRTMarker");
   rrt_marker_pub_.publish(
-      createRRTMarkerArray(root, stl_rtree, current_state, ltl_lambda_, ltl_min_distance_, ltl_max_distance_,
+      createRRTMarkerArray(root_, stl_rtree, current_state, ltl_lambda_, ltl_min_distance_, ltl_max_distance_,
                            ltl_min_distance_active_, ltl_max_distance_active_, ltl_max_search_distance_,
                            params_.bounding_radius, ltl_step_size_, ltl_routers_, ltl_routers_active_, params_.lambda,
                            ltl_min_altitude_active_, ltl_max_altitude_active_, ltl_min_altitude_, ltl_max_altitude_, frame_id_));
   ROS_WARN("publishRecursive");
-  publishEvaluatedNodesRecursive(root);
+  publishEvaluatedNodesRecursive(root_);
 
   ROS_WARN("extractPose");
   result.pose.pose = vecToPose(best_branch_root_->children_[0]->state_);
@@ -353,6 +355,10 @@ void STLAEPlanner::rewire(const value_rtree& rtree, std::shared_ptr<point_rtree>
   {
     std::shared_ptr<RRTNode> current_node = nearest[i].second;
 
+    if (current_node == root_ || current_node == new_node)
+    {
+      continue;
+    }
 
     Eigen::Vector3d p2(current_node->state_[0], current_node->state_[1], current_node->state_[2]);
 
@@ -981,7 +987,7 @@ std::pair<double, double> STLAEPlanner::gainCubatureLidar(Eigen::Vector4d state)
           g += params_.constant*coefficient*((2 * r * r * dr + 1 / 6 * dr * dr * dr) * dtheta_rad * sin(dphi_rad / 2));
         }
         else
-          g += params_.constant*(2 * r * r * dr + 1 / 6 * dr * dr * dr) * dtheta_rad * sin(dphi_rad / 2);
+          g += (2 * r * r * dr + 1 / 6 * dr * dr * dr) * dtheta_rad * sin(dphi_rad / 2);
       }
     }
 
@@ -1021,6 +1027,7 @@ std::pair<double, double> STLAEPlanner::gainCubatureLidar(Eigen::Vector4d state)
   double yaw = M_PI * best_yaw / 180.f;
 
   state[3] = yaw;
+  gain = floorf(gain*10)/10;
   return std::make_pair(gain, yaw);
 }
 
@@ -1125,6 +1132,7 @@ std::pair<double, double> STLAEPlanner::gainCubatureCamera(Eigen::Vector4d state
   double yaw = M_PI * best_yaw / 180.f;
 
   state[3] = yaw;
+  gain = floorf(gain*10)/10;
   return std::make_pair(gain, yaw);
 }
 

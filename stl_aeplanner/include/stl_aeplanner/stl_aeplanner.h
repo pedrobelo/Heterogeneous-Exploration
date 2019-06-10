@@ -52,6 +52,7 @@ private:
   bool current_state_initialized_;
 
   // Keep track of the best node and its score
+  std::shared_ptr<RRTNode> root_;
   std::shared_ptr<RRTNode> best_node_;
   std::shared_ptr<RRTNode> best_branch_root_;
 
@@ -100,6 +101,8 @@ private:
   std::string frame_id_;
 
   double max_sampling_radius_squared_;
+
+  std::string robot_name;
 
   point_rtree getRtree(std::shared_ptr<octomap::OcTree> ot, octomap::point3d min, octomap::point3d max);
 

@@ -106,7 +106,7 @@ void evaluation_octomap::writeToFile() {
 		}
 	}
 
-	file << uncertainty1 << " " << uncertainty2;
+	file << uncertainty1 << " " << uncertainty2/i;
 	for (int j = 0; j <= 1/INTERVAL; ++j) {
 		file << " " << intervals[j];
 	}
