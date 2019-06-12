@@ -124,6 +124,6 @@
       <arg name="scan" value="/iris_2/scan"/>
       <arg name="cloud" value="/lidar_pc"/>
     </include>
-
   </group>
+
 </launch>

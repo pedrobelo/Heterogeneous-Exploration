@@ -52,7 +52,7 @@ min_altitude_active: false
 max_altitude_active: false
 
 
-he/he_active: false
+he/he_active: true
 he/sensor: "lidar"
 he/mu: 50
 he/sigma: 0.001

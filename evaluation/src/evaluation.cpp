@@ -21,11 +21,12 @@ private:
 	double x_max, y_max, z_max, resolution;
 	double x_min, y_min, z_min;
 	ros::Subscriber sub;
-	ros::ServiceServer service;
+	ros::ServiceServer service, service2;
 
 	void octomapCallback(const octomap_msgs::Octomap& msg);
 	void writeToFile();
 	bool start(evaluation::start::Request &req, evaluation::start::Response &res);
+	bool writeOctomapToFile(evaluation::start::Request &req, evaluation::start::Response &res);
 };
 
 evaluation_octomap::evaluation_octomap() : nhPrivate_("~"),
@@ -44,6 +45,7 @@ evaluation_octomap::evaluation_octomap() : nhPrivate_("~"),
 	nhPrivate_.getParam("z_min", z_min);
 
 	service = nhPrivate_.advertiseService("start_recording", &evaluation_octomap::start, this);
+	service2 = nhPrivate_.advertiseService("print", &evaluation_octomap::writeOctomapToFile, this);
 }
 
 evaluation_octomap::~evaluation_octomap() {
@@ -111,6 +113,32 @@ void evaluation_octomap::writeToFile() {
 		file << " " << intervals[j];
 	}
 	file << "\n";
+}
+
+bool evaluation_octomap::writeOctomapToFile(evaluation::start::Request &req, evaluation::start::Response &res) {
+	if(ot_) {
+		double x, y, z;
+		file.open("/home/pedro/Desktop/histogram.txt", std::ofstream::out);
+		std::shared_ptr<octomap::OcTree> ot = ot_;
+		for (x = x_min; x < x_max; x += resolution) {
+			for (y = y_min; y < y_max; y += resolution) {
+				for (z = z_min; z < z_max; z += resolution) {
+					octomap::point3d query(x, y, z);
+					octomap::OcTreeNode* result = ot->search(query);
+
+					if(result) {
+						if(result->getOccupancy()*100 > 50) {
+							file << result->getOccupancy()*100 << "\n";
+						}
+					}
+				}
+			}
+		}
+
+		file.close();
+	}
+
+	return true;
 }
 
 int main(int argc, char **argv)

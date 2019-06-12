@@ -29,6 +29,13 @@ int main(int argc, char** argv)
   ros::NodeHandle nh;
   ROS_INFO("Started exploration");
 
+  std::string ns = ros::this_node::getNamespace();
+  std::string frame_id_;
+  if (!ros::param::get(ns + "/he/robot_name", frame_id_))
+    ROS_WARN("No frame_id specified, default is map");
+
+  frame_id_.append("/map");
+
   // Open logfile;
   std::string path = ros::package::getPath("stl_exploration");
   std::ofstream logfile, pathfile;
@@ -101,6 +108,7 @@ int main(int argc, char** argv)
   // allows the planning of initial paths.
   ROS_INFO("Starting the planner: Performing initialization motion");
   geometry_msgs::PoseStamped last_pose;
+  last_pose.header.frame_id = frame_id_;
 
   ros::ServiceClient arm_client = nh.serviceClient<mavros_msgs::CommandBool>("/mavros/"
                                                                              "cmd/"
@@ -145,12 +153,7 @@ int main(int argc, char** argv)
   int iteration = 0;
   int actions_taken = 1;
 
-  std::string ns = ros::this_node::getNamespace();
-  std::string frame_id_;
-  if (!ros::param::get(ns + "/he/robot_name", frame_id_))
-    ROS_WARN("No frame_id specified, default is map");
-
-  frame_id_.append("/map");
+  
 
   ros::Time start = ros::Time::now();
   while (ros::ok())
@@ -165,6 +168,7 @@ int main(int argc, char** argv)
 
     while (!aep_ac.waitForResult(ros::Duration(0.05)))
     {
+      last_pose.header.stamp = ros::Time::now();
       pub.publish(last_pose);
     }
 
@@ -210,6 +214,7 @@ int main(int argc, char** argv)
       rrt_ac.sendGoal(rrt_goal);
       while (!rrt_ac.waitForResult(ros::Duration(0.05)))
       {
+        last_pose.header.stamp = ros::Time::now();
         pub.publish(last_pose);
       }
       nav_msgs::Path path = rrt_ac.getResult()->path;
