@@ -2,156 +2,223 @@ import matplotlib.pyplot as plt
 import csv
 import numpy as np
 import math
+import sys
 
-uncertainty1 = []
-average1 = []
-x1 = []
+class graphs(object):
+	count = []
+	uncertainty = []
+	average = []
+	histogram_f = []
+	histogram_o = []
+	tSize = 0
+	pSize = 0
 
-uncertainty2 = []
-average2 = []
-x2 = []
+	def __init__(self, tSize_, pSize_):
+		self.tSize = tSize_
+		self.pSize = pSize_
+		self.count = [0] * self.tSize
 
-histogram_f1 = []
-histogram_o1 = []
-histogram_f2 = []
-histogram_o2 = []
+	def add(self, values, time):
+		self.histogram_f[int(math.floor(time))]
 
-with open('aep_1.txt','r') as csvfile:
-    plots = csv.reader(csvfile, delimiter=' ')
-    for row in plots:
-        x.append(float(row[0]))
-        uncertainty.append(float(row[1]))
-        average.append(float(row[2]))
+		self.histogram_f[int(math.floor(time))]= [x+float(y) for x, y in zip(self.histogram_f[int(math.floor(time))], values[0:len(values)/2])]
+		self.histogram_o[int(math.floor(time))]= [x+float(y) for x, y in zip(self.histogram_o[int(math.floor(time))], values[len(values)/2:len(values)+1])]
 
-        values = row[3:];
-        histogram_f.append([float(i) for i in values[0:len(values)/2]])
-        histogram_o.append([float(i) for i in values[len(values)/2:len(values)+1]])
+	def readFile(self, str):
+		self.count = [0] * self.tSize
+		self.uncertainty = [0] * self.tSize
+		self.average = [0] * self.tSize
+		self.count = [0] * self.tSize
 
-uncertainty1 = [x for _,x in sorted(zip(x1,uncertainty1))]
-average1 = [x for _,x in sorted(zip(x1,average1))]
-histogram_f1 = [x for _,x in sorted(zip(x1,histogram_f1))]
-histogram_o1 = [x for _,x in sorted(zip(x1,histogram_o1))]
-x1.sort();
+		self.histogram_f = []
+		self.histogram_o = []
+		for i in range(0, self.tSize):
+			self.histogram_f.append([0] * self.pSize)
+			self.histogram_o.append([0] * self.pSize)
 
-aux = x1[0]
-x1[:] = [x - aux for x in x1]
+		with open(str,'r') as csvfile:
+			plots_ = csv.reader(csvfile, delimiter=' ')
+			plots = []
 
-for (uncertainty_, average_, histogram_f_, histogram_o_, time_) in zip(uncertainty, average, histogram_f, histogram_o, x1)
-    uncertainty1[math.floor(time_)] += uncertainty_;
-    average1[math.floor(time_)] += average_;
-    histogram_f1[math.floor(time_)] += histogram_f_;
-    histogram_o1[math.floor(time_)] += histogram_o_;
-    time[math.floor(time_)] += 1;
+			for row in plots_:
+				plots.append(row)
+			min_ = min(float(row[0]) for row in plots)
+
+			for row in plots:
+				if(int(math.floor(float(row[0])-min_)) < self.tSize):
+					self.uncertainty[int(math.floor(float(row[0])-min_))] += float(row[1])
+					self.average[int(math.floor(float(row[0])-min_))] += float(row[2])
+
+					values = row[3:]
+					self.add(values, float(row[0])-min_)
+
+					self.count[int(math.floor(float(row[0])-min_))] += 1
+
+	def get_uncertainty(self):
+		ret = []
+		for x, y in zip(self.uncertainty, self.count):
+			if y == 0:
+				ret.append(-1)
+			else:
+				ret.append(x/y)
+		
+		return ret
+
+	def get_average(self):
+		ret = []
+		for x, y in zip(self.average, self.count):
+			if y == 0:
+				ret.append(-1)
+			else:
+				ret.append(x/y)
+		
+		return ret
+
+	def get_histogram_f(self):
+		ret2 = []
+		for x in range(0,self.tSize):
+			ret = []
+			for y in self.histogram_f[x]:
+				if self.count[x] == 0:
+					ret.append(-1)
+				else:
+					ret.append(y/self.count[x])
+			ret2.append(ret)
+		return ret2
+
+	def get_histogram_o(self):
+		ret2 = []
+		for x in range(0,self.tSize):
+			ret = []
+			for y in self.histogram_o[x]:
+				if self.count[x] == 0:
+					ret.append(-1)
+				else:
+					ret.append(y/self.count[x])
+			ret2.append(ret)
+
+		return ret2
+
+class mergeGraphs(graphs):
+	init = True
+
+	def add(self, graph):
+		uncertainty_aux = graph.get_uncertainty()
+		average_aux = graph.get_average()
+		histogram_f_aux = graph.get_histogram_f()
+		histogram_o_aux = graph.get_histogram_o()
+		for i in range(0,self.tSize):
+			self.uncertainty[i] += uncertainty_aux[i]
+			self.average[i] += average_aux[i]
+			self.count[i] += 1
+			for j in range(0,self.pSize):
+				self.histogram_f[i][j] += histogram_f_aux[i][j]
+				self.histogram_o[i][j] += histogram_o_aux[i][j]
+
+	def addGraph(self, graph):
+		if self.init == True:
+			self.uncertainty = graph.get_uncertainty()
+			self.average = graph.get_average()
+			self.histogram_f = graph.get_histogram_f()
+			self.histogram_o = graph.get_histogram_o()
+			self.init = False
+			for i in range(0,self.tSize):
+				self.count[i] = 1
+		else:
+			self.add(graph)
+						
+
+def plotGraphs(time, heGraph, aepGraph):
+	heUncertainty = heGraph.get_uncertainty()
+	aepUncertainty = aepGraph.get_uncertainty()
+	heAverage = heGraph.get_average()
+	aepAverage = aepGraph.get_average()
+	heHistogram_o = heGraph.get_histogram_o()
+	aepHistogram_o = aepGraph.get_histogram_o()
+	heHistogram_f = heGraph.get_histogram_f()
+	aepHistogram_f = aepGraph.get_histogram_f()
+
+	plt.subplot(3,2,1)
+	[a,b] = plt.plot(time, heUncertainty, 'r', time, aepUncertainty, 'b')
+	plt.xlabel('Time')
+	plt.ylabel('Total uncertainty')
+	plt.title('Total uncertainty over time')
+	plt.legend([a,b], ["improved exploration", "normal exploration"])
+
+	plt.subplot(3,2,2)
+	[a,b] = plt.plot(time, heAverage, 'r', time, aepAverage, 'b')
+	plt.xlabel('Time')
+	plt.ylabel('Average uncertainty')
+	plt.title('Average uncertainty over time')
+	plt.legend([a,b], ["improved exploration", "normal exploration"])
+
+	num_plots = 5
+	colors = [plt.cm.jet(i) for i in np.linspace(0, 1, num_plots)]
+
+	plt.rc('axes', prop_cycle=plt.cycler('color', colors))
+
+	plt.subplot(3,2,3)
+	labels = []
+	data = np.array(list(heHistogram_f))
+
+	for indx in range(0, num_plots):
+	    plt.plot(time, data.transpose()[indx])
+	    labels.append(r'$%.2f - %.2f$' % (indx*0.5/num_plots, (indx+1)*0.5/num_plots))
+	plt.xlabel('Time')
+	plt.ylabel('Number of cells')
+	plt.title('Number of free cells in uncertainty interval for improved exploration')
+	plt.legend(labels)
+
+	plt.subplot(3,2,4)
+	labels = []
+	data = np.array(list(heHistogram_o))
+	for indx in range(0, num_plots):
+	    plt.plot(time, data.transpose()[indx])
+	    labels.append(r'$%.2f - %.2f$' % (indx*0.5/num_plots+0.5, (indx+1)*0.5/num_plots+0.5))
+	plt.xlabel('Time')
+	plt.ylabel('Number of cells')
+	plt.title('Number of occupied cells in uncertainty interval for improved exploration')
+	plt.legend(labels)
+
+	plt.subplot(3,2,5)
+	labels = []
+	data = np.array(list(aepHistogram_f))
+	for indx in range(0, num_plots):
+	    plt.plot(time, data.transpose()[indx])
+	    labels.append(r'$%.2f - %.2f$' % (indx*0.5/num_plots, (indx+1)*0.5/num_plots))
+	plt.xlabel('Time')
+	plt.ylabel('Number of cells')
+	plt.title('Number of free cells in uncertainty interval for normal exploration')
+	plt.legend(labels)
+
+	plt.subplot(3,2,6)
+	labels = []
+	data = np.array(list(aepHistogram_o))
+	for indx in range(0, num_plots):
+	    plt.plot(time, data.transpose()[indx])
+	    labels.append(r'$%.2f - %.2f$' % (indx*0.5/num_plots+0.5, (indx+1)*0.5/num_plots+0.5))
+	plt.xlabel('Time')
+	plt.ylabel('Number of cells')
+	plt.title('Number of occupied cells in uncertainty interval for normal exploration')
+	plt.legend(labels)
+
+	plt.show()
+
+
+def printGraphs(startFile, endFile):
+	graph = graphs(250, 5)
+	heMergeGraphs = mergeGraphs(250, 5)
+	aepMergeGraphs = mergeGraphs(250, 5)
+
+	for x in range(startFile,endFile+1):
+		print x
+		graph.readFile('he_'+str(x)+'.txt')
+		heMergeGraphs.addGraph(graph)
+		graph.readFile('aep_'+str(x)+'.txt')
+		aepMergeGraphs.addGraph(graph)
+
+	plotGraphs([i for i in range(0, 250)], heMergeGraphs, aepMergeGraphs)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-with open('aep_2.txt','r') as csvfile:
-    plots = csv.reader(csvfile, delimiter=' ')
-    for row in plots:
-        x2.append(float(row[0]))
-        uncertainty2.append(float(row[1]))
-        average2.append(float(row[2]))
-
-        values = row[3:];
-        histogram_f2.append([float(i) for i in values[0:len(values)/2]])
-        histogram_o2.append([float(i) for i in values[len(values)/2:len(values)+1]])
-
-uncertainty1 = [x for _,x in sorted(zip(x1,uncertainty1))]
-average1 = [x for _,x in sorted(zip(x1,average1))]
-histogram_f1 = [x for _,x in sorted(zip(x1,histogram_f1))]
-histogram_o1 = [x for _,x in sorted(zip(x1,histogram_o1))]
-x1.sort()
-
-uncertainty2 = [x for _,x in sorted(zip(x2,uncertainty2))]
-average2 = [x for _,x in sorted(zip(x2,average2))]
-histogram_f2 = [x for _,x in sorted(zip(x2,histogram_f2))]
-histogram_o2 = [x for _,x in sorted(zip(x2,histogram_o2))]
-x2.sort()
-
-aux = x1[0]
-x1[:] = [x - aux for x in x1]
-
-aux = x2[0]
-x2[:] = [x - aux for x in x2]
-
-
-
-plt.subplot(3,2,1)
-[a,b] = plt.plot(x1, uncertainty1, 'r', x2, uncertainty2, 'b')
-plt.xlabel('Time')
-plt.ylabel('Total uncertainty')
-plt.title('Total uncertainty over time')
-plt.legend([a,b], ["improved exploration", "normal exploration"])
-
-plt.subplot(3,2,2)
-[a,b] = plt.plot(x1, average1, 'r', x2, average2, 'b')
-plt.xlabel('Time')
-plt.ylabel('Average uncertainty')
-plt.title('Average uncertainty over time')
-plt.legend([a,b], ["improved exploration", "normal exploration"])
-
-num_plots = len(values)/2
-colors = [plt.cm.jet(i) for i in np.linspace(0, 1, num_plots)]
-
-plt.rc('axes', prop_cycle=plt.cycler('color', colors))
-
-plt.subplot(3,2,3)
-labels = []
-data = np.array(list(histogram_f1))
-for indx in range(0, num_plots):
-    plt.plot(x1, data.transpose()[indx])
-    labels.append(r'$%.2f - %.2f$' % (indx*0.5/num_plots, (indx+1)*0.5/num_plots))
-plt.xlabel('Time')
-plt.ylabel('Number of cells')
-plt.title('Number of free cells in uncertainty interval for improved exploration')
-plt.legend(labels)
-
-plt.subplot(3,2,4)
-labels = []
-data = np.array(list(histogram_o1))
-for indx in range(0, num_plots):
-    plt.plot(x1, data.transpose()[indx])
-    labels.append(r'$%.2f - %.2f$' % (indx*0.5/num_plots+0.5, (indx+1)*0.5/num_plots+0.5))
-plt.xlabel('Time')
-plt.ylabel('Number of cells')
-plt.title('Number of occupied cells in uncertainty interval for improved exploration')
-plt.legend(labels)
-
-plt.subplot(3,2,5)
-labels = []
-data = np.array(list(histogram_f2))
-for indx in range(0, num_plots):
-    plt.plot(x2, data.transpose()[indx])
-    labels.append(r'$%.2f - %.2f$' % (indx*0.5/num_plots, (indx+1)*0.5/num_plots))
-plt.xlabel('Time')
-plt.ylabel('Number of cells')
-plt.title('Number of free cells in uncertainty interval for normal exploration')
-plt.legend(labels)
-
-plt.subplot(3,2,6)
-labels = []
-data = np.array(list(histogram_o2))
-for indx in range(0, num_plots):
-    plt.plot(x2, data.transpose()[indx])
-    labels.append(r'$%.2f - %.2f$' % (indx*0.5/num_plots+0.5, (indx+1)*0.5/num_plots+0.5))
-plt.xlabel('Time')
-plt.ylabel('Number of cells')
-plt.title('Number of occupied cells in uncertainty interval for normal exploration')
-plt.legend(labels)
-
-plt.show()
+printGraphs(int(sys.argv[1]),int(sys.argv[2]))
