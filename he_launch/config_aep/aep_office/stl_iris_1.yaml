@@ -54,7 +54,7 @@ max_altitude_active: false
 
 he/he_active: true
 he/sensor: "camera"
-he/mu: 55
-he/sigma: 3.5
+he/mu: 54
+he/sigma: 2
 he/constant: 1000
 he/robot_name: "iris_1"

@@ -15,7 +15,7 @@ system/bbx/overshoot: 0.25
 aep/gain/r_min: 0
 aep/gain/r_max: 20
 aep/gain/zero: 300
-aep/gain/lambda: 0.3
+aep/gain/lambda: 0.01
 aep/gain/sigma_thresh: 0.2
 aep/tree/extension_range: 2.5
 aep/tree/max_sampling_radius: 50
@@ -56,5 +56,5 @@ he/he_active: true
 he/sensor: "lidar"
 he/mu: 50
 he/sigma: 0.001
-he/constant: 1
+he/constant: 100
 he/robot_name: "iris_2"
