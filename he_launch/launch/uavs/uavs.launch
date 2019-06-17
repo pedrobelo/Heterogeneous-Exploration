@@ -43,6 +43,8 @@
     <!-- tf between world frame and map frame -->
     <node pkg="tf2_ros" type="static_transform_publisher" name="world2map" args="20 $(arg y) $(arg z) $(arg R) $(arg P) $(arg Y) world iris_1/map" />
 
+    <!--node pkg="tf2_ros" type="static_transform_publisher" name="map2baselink" args="0 0 0 0 0 0 iris_1/map iris_1/base_link" /-->
+
     <node pkg="tf2_ros" type="static_transform_publisher" name="primesense_broadcaster" args="0.05 0 0.13 -1.57079633 0 -1.57079633 iris_1/base_link iris_1/camera_link" />
     <!-- PX4 SITL and Gazebo -->
     <include file="$(find he_launch)/launch/uavs/posix_sitl.launch">
@@ -91,6 +93,8 @@
   <group ns="iris_2">
     <!-- tf between world frame and map frame -->        
     <node pkg="tf2_ros" type="static_transform_publisher" name="world2map" args="0 $(arg y) $(arg z) $(arg R) $(arg P) $(arg Y) world iris_2/map" />
+
+    <!--node pkg="tf2_ros" type="static_transform_publisher" name="map2baselink" args="0 0 0 0 0 0 iris_2/map iris_2/base_link" /-->
     <!-- tf between base_link and lase_link -->        
     <node pkg="tf2_ros" type="static_transform_publisher" name="base_link2laser_link" args="0.02 0 0.08 0 0 0 iris_2/base_link iris_2/laser_link" />
     <!-- PX4 SITL and Gazebo -->

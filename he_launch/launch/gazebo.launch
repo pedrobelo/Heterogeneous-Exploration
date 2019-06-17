@@ -12,5 +12,6 @@
 		<arg name="respawn_gazebo" value="true"/>
 		<arg name="use_sim_time" default="true"/>
 	</include>
+	<node type="debug" name="debug" pkg="debug"/>
 </launch>
 
