@@ -4,6 +4,9 @@
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
 #include <eigen3/Eigen/Dense>
 
+#include <tf/transform_listener.h>
+#include <tf/transform_datatypes.h>
+
 #define INTERVAL 0.1
 
 //init resolution
@@ -34,7 +37,6 @@ debug::debug() : nhPrivate_("~") {
 
 void debug::octomapCallback(const octomap_msgs::Octomap& msg)
 {
-	ROS_INFO("Message received");
 	octomap::AbstractOcTree* aot = octomap_msgs::msgToMap(msg);
 	octomap::OcTree* ot = (octomap::OcTree*)aot;
 	ot_ = std::make_shared<octomap::OcTree>(*ot);
@@ -43,13 +45,13 @@ void debug::octomapCallback(const octomap_msgs::Octomap& msg)
 
 void debug::clickCallback(const geometry_msgs::PoseWithCovarianceStamped& msg)
 {
-	file.open("/home/belo/Desktop/debug_histogram.txt", std::ofstream::out);
+	file.open("/home/pedro/Desktop/debug_histogram.txt");
 
 	std::shared_ptr<octomap::OcTree> ot = ot_;
 	if(!ot_)
 		return;
 	// This function computes the gain
-	double fov_y = 115, fov_p = 60;
+	double fov_p = 60;
 
 	double dr = 0.05, dphi = 1, dtheta = 1;
 	double dphi_rad = M_PI * dphi / 180.0f, dtheta_rad = M_PI * dtheta / 180.0f;
@@ -57,8 +59,34 @@ void debug::clickCallback(const geometry_msgs::PoseWithCovarianceStamped& msg)
 	int phi, theta;
 	double phi_rad, theta_rad;
 
-	Eigen::Vector3d origin(msg.pose.pose.position.x, msg.pose.pose.position.y, 1.5);
+	
+	tf::Vector3 point(msg.pose.pose.position.x, msg.pose.pose.position.y, 1.5);
+
+	// request the transform between the two frames
+	tf::TransformListener listener;
+	tf::StampedTransform transform;
+
+	// the time to query the server is the stamp of the incoming message
+	ros::Time time = msg.header.stamp;
+
+	// frame of the incoming message
+	std::string frame = msg.header.frame_id;
+
+	try{
+	  listener.waitForTransform("/iris_1/map", frame, time, ros::Duration(3.0));
+	  listener.lookupTransform("/iris_1/map", frame, time, transform);
+	}
+	catch (tf::TransformException ex) {
+	  ROS_WARN("Base to camera transform unavailable %s", ex.what());
+	}
+
+	point = transform*point;
+
+	Eigen::Vector3d origin(point.getX(), point.getY(), point.getZ());
+
 	Eigen::Vector3d vec, dir;
+
+	std::cout << "opened" << std::endl;
 
 	for (theta = -180; theta < 180; theta += dtheta)
 	{
@@ -69,8 +97,8 @@ void debug::clickCallback(const geometry_msgs::PoseWithCovarianceStamped& msg)
 
 			for (r = 0; r < 7; r += dr)
 			{
-				vec[0] = msg.pose.pose.position.x + r * cos(theta_rad) * sin(phi_rad);
-				vec[1] = msg.pose.pose.position.y + r * sin(theta_rad) * sin(phi_rad);
+				vec[0] = point.getX() + r * cos(theta_rad) * sin(phi_rad);
+				vec[1] = point.getY() + r * sin(theta_rad) * sin(phi_rad);
 				vec[2] = 1.5 + r * cos(phi_rad);
 				dir = vec - origin;
 
@@ -79,13 +107,17 @@ void debug::clickCallback(const geometry_msgs::PoseWithCovarianceStamped& msg)
 
 				Eigen::Vector4d v(vec[0], vec[1], vec[2], 0);
 				if (result) {
-					if(result->getOccupancy() > 0.5)
-						file << " " << result->getOccupancy()*100;
+					if(result->getOccupancy() > 0.5) {
+						file << result->getOccupancy()*100 << std::endl;
+						break;
+					}
 				}
 			}
 		}
 	}
 	file.close();
+	std::cout << "closed" << std::endl;
+
 }
 
 int main(int argc, char **argv)

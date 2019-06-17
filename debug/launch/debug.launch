@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<launch>
+	<node type="debug" name="debug" pkg="debug" output="screen">
+		<param name="octomapTopic" value="/iris_1/stl_aeplanner/octomap_full"/>
+	</node>
+</launch>
+

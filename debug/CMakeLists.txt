@@ -7,6 +7,7 @@ find_package(catkin REQUIRED COMPONENTS
 	roscpp
 	geometry_msgs
 	message_generation
+	tf
 )
 
 find_package(Eigen3 REQUIRED)
