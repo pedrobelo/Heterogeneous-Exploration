@@ -85,24 +85,12 @@ int main(int argc, char** argv)
                                  0.0, init_yaw);
   initial_positions.emplace_back(init_pose->pose.position.x, init_pose->pose.position.y,
                                  2.5, init_yaw);
-  double move_forward_distance = 0.0;
-  double yaw_radians = M_PI;
+  double move_forward_distance = 1.0;
+  double yaw_radians = 0;
   initial_positions.emplace_back(
       init_pose->pose.position.x + move_forward_distance * std::cos(init_yaw),
       init_pose->pose.position.y + move_forward_distance * std::sin(init_yaw), 1,
       init_yaw + (yaw_radians / 2));
-  initial_positions.emplace_back(
-      init_pose->pose.position.x + move_forward_distance * std::cos(init_yaw),
-      init_pose->pose.position.y + move_forward_distance * std::sin(init_yaw), 1,
-      init_yaw + yaw_radians);
-  initial_positions.emplace_back(
-      init_pose->pose.position.x + move_forward_distance * std::cos(init_yaw),
-      init_pose->pose.position.y + move_forward_distance * std::sin(init_yaw), 1,
-      init_yaw - (yaw_radians / 2));
-  initial_positions.emplace_back(
-      init_pose->pose.position.x + move_forward_distance * std::cos(init_yaw),
-      init_pose->pose.position.y + move_forward_distance * std::sin(init_yaw), 1,
-      init_yaw);
 
   // This is the initialization motion, necessary that the known free space
   // allows the planning of initial paths.

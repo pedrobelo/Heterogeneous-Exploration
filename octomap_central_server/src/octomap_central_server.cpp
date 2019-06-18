@@ -28,8 +28,8 @@ octomap_central_server::octomap_central_server(ros::NodeHandle private_nh_) {
 	private_nh.param("lidar/max", lidar_thresMax, 0.97);
 
 
-	lidar_sub = private_nh.subscribe("lidar_pc", 100, &octomap_central_server::lidar_Callback, this);
-	rgbd_sub = private_nh.subscribe("rgbd_pc", 100, &octomap_central_server::rgbd_Callback, this);
+	lidar_sub = private_nh.subscribe("lidar_pc", 10, &octomap_central_server::lidar_Callback, this);
+	rgbd_sub = private_nh.subscribe("rgbd_pc", 10, &octomap_central_server::rgbd_Callback, this);
 
 }
 

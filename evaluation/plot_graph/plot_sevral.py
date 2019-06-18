@@ -56,44 +56,60 @@ class graphs(object):
 
 	def get_uncertainty(self):
 		ret = []
+		last = -1
 		for x, y in zip(self.uncertainty, self.count):
 			if y == 0:
-				ret.append(-1)
+				ret.append(last)
 			else:
+				last = x/y
 				ret.append(x/y)
 		
 		return ret
 
 	def get_average(self):
 		ret = []
+		last = -1
 		for x, y in zip(self.average, self.count):
 			if y == 0:
-				ret.append(-1)
+				ret.append(last)
 			else:
+				last = x/y
 				ret.append(x/y)
 		
 		return ret
 
 	def get_histogram_f(self):
 		ret2 = []
+
+		last = []
+		for i in range(self.pSize):
+			last.append(-1)
+
 		for x in range(0,self.tSize):
 			ret = []
-			for y in self.histogram_f[x]:
+			for idx, y in enumerate(self.histogram_f[x]):
 				if self.count[x] == 0:
-					ret.append(-1)
+					ret.append(last[idx])
 				else:
+					last[idx] = y/self.count[x]
 					ret.append(y/self.count[x])
 			ret2.append(ret)
 		return ret2
 
 	def get_histogram_o(self):
 		ret2 = []
+		
+		last = []
+		for i in range(self.pSize):
+			last.append(-1)
+			
 		for x in range(0,self.tSize):
 			ret = []
-			for y in self.histogram_o[x]:
+			for idx, y in enumerate(self.histogram_o[x]):
 				if self.count[x] == 0:
-					ret.append(-1)
+					ret.append(last[idx])
 				else:
+					last[idx] = y/self.count[x]
 					ret.append(y/self.count[x])
 			ret2.append(ret)
 

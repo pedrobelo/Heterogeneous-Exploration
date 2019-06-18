@@ -3,6 +3,8 @@
 #include <octomap_msgs/conversions.h>
 #include <evaluation/start.h>
 
+#include <tf/transform_listener.h>
+#include <tf/transform_datatypes.h>
 
 #define INTERVAL 0.1
 
@@ -22,6 +24,7 @@ private:
 	double x_min, y_min, z_min;
 	ros::Subscriber sub;
 	ros::ServiceServer service, service2;
+	tf::StampedTransform transform;
 
 	void octomapCallback(const octomap_msgs::Octomap& msg);
 	void writeToFile();
@@ -57,13 +60,35 @@ evaluation_octomap::~evaluation_octomap() {
 bool evaluation_octomap::start(evaluation::start::Request &req, evaluation::start::Response &res) {
 	std::string octomapTopic;
 	nhPrivate_.getParam("octomapTopic", octomapTopic);
-	sub = nhPrivate_.subscribe(octomapTopic, 1000, &evaluation_octomap::octomapCallback, this);
+	sub = nhPrivate_.subscribe(octomapTopic, 100, &evaluation_octomap::octomapCallback, this);
 
 	return true;
 }
 
 void evaluation_octomap::octomapCallback(const octomap_msgs::Octomap& msg)
 {
+	static bool init=true;
+
+	if(init) {
+		// request the transform between the two frames
+		tf::TransformListener listener;
+
+		// the time to query the server is the stamp of the incoming message
+		ros::Time time = msg.header.stamp;
+
+		// frame of the incoming message
+		std::string frame = msg.header.frame_id;
+
+		try{
+			listener.waitForTransform(frame, "world", time, ros::Duration(3.0));
+			listener.lookupTransform(frame, "world", time, transform);
+		}
+		catch (tf::TransformException ex) {
+			ROS_WARN("Base to camera transform unavailable %s", ex.what());
+		}
+		init = false;
+	}
+
 	ROS_INFO("Message received");
 	resolution = msg.resolution;
 	octomap::AbstractOcTree* aot = octomap_msgs::msgToMap(msg);
@@ -90,7 +115,9 @@ void evaluation_octomap::writeToFile() {
 	for (x = x_min; x < x_max; x += resolution) {
 		for (y = y_min; y < y_max; y += resolution) {
 			for (z = z_min; z < z_max; z += resolution) {
-				octomap::point3d query(x, y, z);
+				tf::Vector3 point(x, y, z);
+				point = transform*point;
+				octomap::point3d query(point.getX(), point.getY(), point.getZ());
 				octomap::OcTreeNode* result = ot->search(query);
 
 				if(result) {

@@ -48,9 +48,9 @@ pc_handle::pc_handle() : nh_private("~"){
 	keep.resize(0);
 
 	lidarPublisher_ = nh_private.advertise<sensor_msgs::PointCloud2>("/lidar_pc_filtered", 10);
-	lidarSubscriber_ = nh_private.subscribe("/lidar_pc", 100, &pc_handle::lidarCallback, this);
+	lidarSubscriber_ = nh_private.subscribe("/lidar_pc", 10, &pc_handle::lidarCallback, this);
 	rgbdPublisher_ = nh_private.advertise<sensor_msgs::PointCloud2>("/rgbd_pc_filtered", 10);
-	rgbdSubscriber_ = nh_private.subscribe("/rgbd_pc", 100, &pc_handle::rgbdCallback, this);
+	rgbdSubscriber_ = nh_private.subscribe("/rgbd_pc", 10, &pc_handle::rgbdCallback, this);
 
 
 	nh_private.getParam("distance_threshold", distance_threshold);
