@@ -1,7 +1,17 @@
 <?xml version="1.0"?>
 <launch>
+	<arg name="xc" default="20"/>
+	<arg name="yc" default="0"/>
+	<arg name="xl" default="0"/>
+	<arg name="yl" default="0"/>
+
 	<include file="$(find he_launch)/launch/octomap_central_server/octomap_central_server.launch"/>
-	<include file="$(find he_launch)/launch/uavs/uavs.launch"/>
+	<include file="$(find he_launch)/launch/uavs/uavs.launch">
+		<arg name="xc" value="$(arg xc)"/>
+		<arg name="yc" value="$(arg yc)"/>
+		<arg name="xl" value="$(arg xl)"/>
+		<arg name="yl" value="$(arg yl)"/>
+	</include>
 	<include file="$(find evaluation)/launch/evaluation.launch">
 		<arg name="file" value="/$(find evaluation)/plot_graph/aep_5.txt"/>
 		<arg name="octomapTopic" value="/iris_1/stl_aeplanner/octomap_full"/>

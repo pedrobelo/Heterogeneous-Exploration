@@ -1,3 +1,3 @@
 #!/bin/sh
 
-roslaunch he_launch gazebo.launch
+roslaunch he_launch gazebo.launch world:=simple2

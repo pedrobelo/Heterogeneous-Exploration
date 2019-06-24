@@ -1,8 +1,13 @@
 <?xml version="1.0"?>
 
 <launch>
-  <arg name="path" default="aep_office/stl" />
 
+  <arg name="xc" default="20"/>
+  <arg name="yc" default="0"/>
+  <arg name="xl" default="0"/>
+  <arg name="yl" default="0"/>
+
+  <arg name="path" default="aep_office/stl" />
 
   <arg name="sdf1" default="$(find he_launch)/models/uav/iris_1.sdf"/>
   <arg name="sdf2" default="$(find he_launch)/models/uav/iris_2.sdf"/>
@@ -13,8 +18,6 @@
   <!-- MAVROS posix SITL environment launch script -->
   <!-- launches MAVROS, PX4 SITL, Gazebo environment, and spawns vehicle -->
   <!-- vehicle pose -->
-  <arg name="x" default="0"/>
-  <arg name="y" default="0"/>
   <arg name="z" default="0"/>
   <arg name="R" default="0"/>
   <arg name="P" default="0"/>
@@ -41,15 +44,13 @@
 
   <group ns="iris_1">
     <!-- tf between world frame and map frame -->
-    <node pkg="tf2_ros" type="static_transform_publisher" name="world2map" args="20 $(arg y) $(arg z) $(arg R) $(arg P) $(arg Y) world iris_1/map" />
-
-    <!--node pkg="tf2_ros" type="static_transform_publisher" name="map2baselink" args="0 0 0 0 0 0 iris_1/map iris_1/base_link" /-->
+    <node pkg="tf2_ros" type="static_transform_publisher" name="world2map" args="$(arg xc) $(arg yc) $(arg z) $(arg R) $(arg P) $(arg Y) world iris_1/map" />
 
     <node pkg="tf2_ros" type="static_transform_publisher" name="primesense_broadcaster" args="0.05 0 0.13 -1.57079633 0 -1.57079633 iris_1/base_link iris_1/camera_link" />
     <!-- PX4 SITL and Gazebo -->
     <include file="$(find he_launch)/launch/uavs/posix_sitl.launch">
-        <arg name="x" value="20"/>
-        <arg name="y" value="$(arg y)"/>
+        <arg name="x" value="$(arg xc)"/>
+        <arg name="y" value="$(arg yc)"/>
         <arg name="z" value="$(arg z)"/>
         <arg name="R" value="$(arg R)"/>
         <arg name="P" value="$(arg P)"/>
@@ -57,6 +58,7 @@
         <arg name="vehicle" value="$(arg vehicle1)"/>
         <arg name="sdf" value="$(arg sdf1)"/>
         <arg name="rcS" value="$(arg rcS1)" />
+        <arg name="ID" value="1" />
     </include>
     <!-- MAVROS -->
     <include file="$(find mavros)/launch/node.launch">
@@ -92,15 +94,15 @@
 
   <group ns="iris_2">
     <!-- tf between world frame and map frame -->        
-    <node pkg="tf2_ros" type="static_transform_publisher" name="world2map" args="0 $(arg y) $(arg z) $(arg R) $(arg P) $(arg Y) world iris_2/map" />
+    <node pkg="tf2_ros" type="static_transform_publisher" name="world2map" args="$(arg xl) $(arg yl) $(arg z) $(arg R) $(arg P) $(arg Y) world iris_2/map" />
 
     <!--node pkg="tf2_ros" type="static_transform_publisher" name="map2baselink" args="0 0 0 0 0 0 iris_2/map iris_2/base_link" /-->
     <!-- tf between base_link and lase_link -->        
     <node pkg="tf2_ros" type="static_transform_publisher" name="base_link2laser_link" args="0.02 0 0.08 0 0 0 iris_2/base_link iris_2/laser_link" />
     <!-- PX4 SITL and Gazebo -->
     <include file="$(find he_launch)/launch/uavs/posix_sitl.launch">
-        <arg name="x" value="0"/>
-        <arg name="y" value="$(arg y)"/>
+        <arg name="x" value="$(arg xl)"/>
+        <arg name="y" value="$(arg yl)"/>
         <arg name="z" value="$(arg z)"/>
         <arg name="R" value="$(arg R)"/>
         <arg name="P" value="$(arg P)"/>
@@ -108,6 +110,7 @@
         <arg name="vehicle" value="$(arg vehicle2)"/>
         <arg name="sdf" value="$(arg sdf2)"/>
         <arg name="rcS" value="$(arg rcS2)" />
+        <arg name="ID" value="2" />
     </include>
     <!-- MAVROS -->
     <include file="$(find mavros)/launch/node.launch">
