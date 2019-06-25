@@ -1,16 +1,15 @@
 <?xml version="1.0"?>
 <launch>
-	<arg name="path_iris_1" default="aep_office/stl_iris_1"/>
-	<arg name="path_iris_2" default="aep_office/stl_iris_2"/>
+	<arg name="path" default="he"/>
 
 	<include file="$(find he_launch)/launch/exploration/exploration.launch">
 		<arg name="robot_name" value="iris_1" />
-		<arg name="path" value="$(arg path_iris_1)" />
+		<arg name="path" value="$(arg path)/stl_iris_1" />
 	</include>
 
 	<include file="$(find he_launch)/launch/exploration/exploration.launch">
 		<arg name="robot_name" value="iris_2" />
-		<arg name="path" value="$(arg path_iris_2)" />
+		<arg name="path" value="$(arg path)/stl_iris_2" />
 	</include>
 </launch>
 
