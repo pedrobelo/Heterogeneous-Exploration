@@ -9,8 +9,8 @@ raycast/dr:     0.15
 raycast/dphi:   5
 raycast/dtheta: 5
 
-system/bbx/r: 0.7
-system/bbx/overshoot: 0.25
+system/bbx/r: 0.9
+system/bbx/overshoot: 0.1
 
 aep/gain/r_min: 0
 aep/gain/r_max: 7
@@ -56,5 +56,5 @@ he/he_active: true
 he/sensor: "camera"
 he/mu: 50
 he/sigma: 2.2
-he/constant: 20
+he/constant: 1
 he/robot_name: "iris_1"

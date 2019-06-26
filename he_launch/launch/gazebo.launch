@@ -4,7 +4,7 @@
 	<arg name="world" default="simple2"/>
 	<!-- Gazebo sim -->
 	<include file="$(find gazebo_ros)/launch/empty_world.launch">
-		<arg name="gui" value="true"/>
+		<arg name="gui" value="false"/>
 		<arg name="world_name" value="$(find he_launch)/worlds/$(arg world).world"/>
 		<arg name="debug" value="false"/>
 		<arg name="verbose" value="false"/>
