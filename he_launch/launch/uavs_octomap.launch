@@ -19,6 +19,6 @@
 		<arg name="file" value="/$(find evaluation)/plot_graph/$(arg file_name).txt"/>
 		<arg name="octomapTopic" value="$(arg octomapTopic)"/>
 	</include>
-	<node pkg="rosbag" type="record" name="rosbag_record" args=" --lz4 -O /home/pedro/catkin_ws/src/Heterogeneous-Exploration/evaluation/rosbags/$(arg file_name).bag $(arg octomapTopic) /iris_1/mavros/local_position/pose /iris_2/mavros/local_position/pose"/>
+	<node pkg="rosbag" type="record" name="rosbag_record" args=" --lz4 -O /home/pedro/Desktop/rosbags/$(arg file_name).bag $(arg octomapTopic) /iris_1/mavros/local_position/pose /iris_2/mavros/local_position/pose"/>
 </launch>
 
