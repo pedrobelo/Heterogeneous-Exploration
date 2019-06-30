@@ -4,8 +4,8 @@
 	<arg name="resolution" default="0.3" />
 	
 	<arg name="rgbd/max_range" default="7" />
-	<arg name="rgbd/hit" default="0.8" />
-	<arg name="rgbd/miss" default="0.2" />
+	<arg name="rgbd/hit" default="0.7" />
+	<arg name="rgbd/miss" default="0.4" />
 	<arg name="rgbd/min" default="0.12" />
 	<arg name="rgbd/max" default="0.97" />
 

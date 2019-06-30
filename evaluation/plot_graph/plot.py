@@ -15,7 +15,7 @@ histogram_o1 = []
 histogram_f2 = []
 histogram_o2 = []
 
-with open('he_1.txt','r') as csvfile:
+with open('office_he_1.txt','r') as csvfile:
     plots = csv.reader(csvfile, delimiter=' ')
     for row in plots:
         x1.append(float(row[0]))
@@ -26,7 +26,7 @@ with open('he_1.txt','r') as csvfile:
         histogram_f1.append([float(i) for i in values[0:len(values)/2]])
         histogram_o1.append([float(i) for i in values[len(values)/2:len(values)+1]])
 
-with open('aep_1.txt','r') as csvfile:
+with open('office_aep_5.txt','r') as csvfile:
     plots = csv.reader(csvfile, delimiter=' ')
     for row in plots:
         x2.append(float(row[0]))

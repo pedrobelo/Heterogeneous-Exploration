@@ -87,7 +87,7 @@ void STLAEPlanner::execute(const stl_aeplanner_msgs::aeplannerGoalConstPtr& goal
   ROS_WARN("Init");
   root_ = initialize(&rtree, current_state);
   ROS_WARN("expandRRT");
-  //ROS_WARN_STREAM(robot_name << "-->" << root_->gain_ << " " << root_->children_.size());
+  ROS_WARN_STREAM(robot_name << "-->" << root_->gain_ << " " << root_->children_.size());
   expandRRT(ot, &rtree, stl_rtree, current_state);
 
   ROS_WARN("getCopyOfParent");

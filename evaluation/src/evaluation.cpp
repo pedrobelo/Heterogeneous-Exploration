@@ -123,9 +123,12 @@ void evaluation_octomap::writeToFile() {
 				if(result) {
 					uncertainty = pow(0.5 - std::abs(0.5-result->getOccupancy()), 2);
 					uncertainty1 += uncertainty;
-					uncertainty2 += uncertainty;
 					intervals[int(floor(result->getOccupancy()/INTERVAL))]++;
-					i++;
+					
+					if(result->getOccupancy() > 0.5) {
+						uncertainty2 += uncertainty;
+						i++;
+					}
 				}
 				else {
 					uncertainty = pow(0.5, 2);

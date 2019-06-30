@@ -5,7 +5,7 @@
 	<arg name="xl" default="0"/>
 	<arg name="yl" default="0"/>
 
-	<arg name="file_name" default="aep_1"/>
+	<arg name="file_name" default="office_he_1"/>
 	<arg name="octomapTopic" default="/iris_1/stl_aeplanner/octomap_full"/>
 
 	<include file="$(find he_launch)/launch/octomap_central_server/octomap_central_server.launch"/>
