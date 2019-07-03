@@ -5,7 +5,7 @@
 	<arg name="xl" default="0"/>
 	<arg name="yl" default="0"/>
 
-	<arg name="file_name" default="office_he_1"/>
+	<arg name="file_name" default="office_ib_5"/>
 	<arg name="octomapTopic" default="/iris_1/stl_aeplanner/octomap_full"/>
 
 	<include file="$(find he_launch)/launch/octomap_central_server/octomap_central_server.launch"/>
@@ -19,6 +19,6 @@
 		<arg name="file" value="/$(find evaluation)/plot_graph/$(arg file_name).txt"/>
 		<arg name="octomapTopic" value="$(arg octomapTopic)"/>
 	</include>
-	<node pkg="rosbag" type="record" name="rosbag_record" args=" --lz4 -O /home/pedro/Desktop/rosbags/$(arg file_name).bag $(arg octomapTopic) /iris_1/mavros/local_position/pose /iris_2/mavros/local_position/pose"/>
+	<node pkg="rosbag" type="record" name="rosbag_record" args=" --lz4 -O /home/pedro/Desktop/rosbags/$(arg file_name).bag $(arg octomapTopic) /iris_1/mavros/local_position/pose /iris_2/mavros/local_position/pose /iris_1/stl_aeplanner/ltl_path /iris_2/stl_aeplanner/ltl_path"/>
 </launch>
 
