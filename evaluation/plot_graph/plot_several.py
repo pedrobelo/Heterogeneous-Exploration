@@ -228,9 +228,9 @@ def printGraphs(startFile, endFile):
 
 	for x in range(startFile,endFile+1):
 		print x
-		graph.readFile('office_he_'+str(x)+'.txt')
+		graph.readFile('simple_he_'+str(x)+'.txt')
 		heMergeGraphs.addGraph(graph)
-		graph.readFile('office_ib_'+str(x)+'.txt')
+		graph.readFile('simple_ib_'+str(x)+'.txt')
 		aepMergeGraphs.addGraph(graph)
 
 	plotGraphs([i for i in range(0, 250)], heMergeGraphs, aepMergeGraphs)
