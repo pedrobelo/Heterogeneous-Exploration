@@ -18,7 +18,7 @@ private:
 	ros::NodeHandle nhPrivate_;
 	std::shared_ptr<octomap::OcTree> ot_;
 	std::ofstream file;
-	double uncertainty1, uncertainty2;
+	double uncertainty_all, uncertainty_occupied, uncertainty_free, uncertainty_explored;
 	int intervals[int(floor(1/INTERVAL))];
 	double x_max, y_max, z_max, resolution;
 	double x_min, y_min, z_min;
@@ -105,8 +105,14 @@ void evaluation_octomap::octomapCallback(const octomap_msgs::Octomap& msg)
 void evaluation_octomap::writeToFile() {
 	double x, y, z, uncertainty;
 	int i=0;
-	uncertainty1 = 0;
-	uncertainty2 = 0;
+
+	uncertainty_all=0;
+	uncertainty_explored=0;
+	uncertainty_free=0;
+	uncertainty_occupied=0;
+
+	int all_cnt=0, explored_cnt=0, free_cnt=0, occupied_cnt=0;
+
 	for (int j = 0; j <= 1/INTERVAL; ++j)
 	{
 		intervals[j] = 0;
@@ -122,23 +128,32 @@ void evaluation_octomap::writeToFile() {
 
 				if(result) {
 					uncertainty = pow(0.5 - std::abs(0.5-result->getOccupancy()), 2);
-					uncertainty1 += uncertainty;
+					uncertainty_all += uncertainty;
+					uncertainty_explored += uncertainty;
 					intervals[int(floor(result->getOccupancy()/INTERVAL))]++;
 					
 					if(result->getOccupancy() > 0.5) {
-						uncertainty2 += uncertainty;
-						i++;
+						uncertainty_occupied += uncertainty;
+						occupied_cnt++;
 					}
+					if(result->getOccupancy() < 0.5) {
+						uncertainty_free += uncertainty;
+						free_cnt++;
+					}
+
+					explored_cnt++;
+					all_cnt++;
 				}
 				else {
 					uncertainty = pow(0.5, 2);
-					uncertainty1 += uncertainty;
+					uncertainty_all += uncertainty;
+					all_cnt++;
 				}
 			}
 		}
 	}
-
-	file << uncertainty1 << " " << uncertainty2/i;
+	ROS_WARN_STREAM(uncertainty_explored << " " << explored_cnt);
+	file << uncertainty_all << " " << uncertainty_all/all_cnt << " " << uncertainty_explored/explored_cnt << " " << uncertainty_occupied/occupied_cnt << " " << uncertainty_free/free_cnt;
 	for (int j = 0; j <= 1/INTERVAL; ++j) {
 		file << " " << intervals[j];
 	}
