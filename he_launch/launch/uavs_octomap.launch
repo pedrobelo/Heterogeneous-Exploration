@@ -19,7 +19,7 @@
 		<arg name="file" value="/$(find evaluation)/plot_graph/$(arg file_name).txt"/>
 		<arg name="octomapTopic" value="$(arg octomapTopic)"/>
 	</include>
-	<node pkg="rosbag" type="record" name="rosbag_record" args=" --lz4 -O /home/pedro/Desktop/rosbags/octomap_$(arg file_name).bag $(arg octomapTopic)"/>
-	<node pkg="rosbag" type="record" name="rosbag_record" args=" --lz4 -O /home/pedro/Desktop/rosbags/visual_$(arg file_name).bag /iris_1/stl_aeplanner/occupied_cells_vis_array /iris_1/mavros/local_position/pose /iris_2/mavros/local_position/pose /iris_1/stl_aeplanner/ltl_path /iris_2/stl_aeplanner/ltl_path /tf /tf_static"/>
+	<node pkg="rosbag" type="record" name="rosbag_record1" args=" --lz4 -O /home/pedro/Desktop/rosbags/octomap_$(arg file_name).bag $(arg octomapTopic)"/>
+	<node pkg="rosbag" type="record" name="rosbag_record2" args=" --lz4 -O /home/pedro/Desktop/rosbags/visual_$(arg file_name).bag /iris_1/stl_aeplanner/occupied_cells_vis_array /iris_1/mavros/local_position/pose /iris_2/mavros/local_position/pose /iris_1/stl_aeplanner/ltl_path /iris_2/stl_aeplanner/ltl_path /tf /tf_static"/>
 </launch>
 

@@ -2,12 +2,12 @@
 
 gnome-terminal --tab -- roslaunch he_launch gazebo.launch world:=$9 &
 
-sleep 5;
+sleep 10;
 
 gnome-terminal --tab -- rosservice call /gazebo/delete_model "model_name: 'iris_1'" & rosservice call /gazebo/delete_model "model_name: 'iris_2'";
 gnome-terminal --tab -- roslaunch he_launch uavs_octomap.launch xc:=$2 yc:=$3 xl:=$4 yl:=$5 file_name:=$6 &
 
-sleep 5;
+sleep 10;
 
 gnome-terminal --tab -- roslaunch he_launch exp.launch path:=$7 &
 
