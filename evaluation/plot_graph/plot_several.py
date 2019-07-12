@@ -28,7 +28,6 @@ class graphs(object):
 		self.count = [0] * self.tSize
 		self.uncertainty = [0] * self.tSize
 		self.average = [0] * self.tSize
-		self.count = [0] * self.tSize
 
 		self.histogram_f = []
 		self.histogram_o = []
@@ -144,48 +143,58 @@ class mergeGraphs(graphs):
 			self.add(graph)
 						
 
-def plotGraphs(time, heGraph, aepGraph):
+def plotGraphs(time, heGraph, ibGraph, aepGraph):
+	plt.figure()
+
 	heUncertainty = heGraph.get_uncertainty()
+	ibUncertainty = ibGraph.get_uncertainty()
 	aepUncertainty = aepGraph.get_uncertainty()
+
 	heAverage = heGraph.get_average()
+	ibAverage = ibGraph.get_average()
 	aepAverage = aepGraph.get_average()
+
 	heHistogram_o = heGraph.get_histogram_o()
+	ibHistogram_o = ibGraph.get_histogram_o()
 	aepHistogram_o = aepGraph.get_histogram_o()
+
 	heHistogram_f = heGraph.get_histogram_f()
+	ibHistogram_f = ibGraph.get_histogram_f()
 	aepHistogram_f = aepGraph.get_histogram_f()
 
-	plt.subplot(3,2,1)
-	[a,b] = plt.plot(time, heUncertainty, 'r', time, aepUncertainty, 'b')
+	plt.subplot(4,2,1)
+	[a,b,c] = plt.plot(time, heUncertainty, 'r', time, ibUncertainty, 'b', time, aepUncertainty, 'g')
 	plt.xlabel('Time')
 	plt.ylabel('Total uncertainty')
 	plt.title('Total uncertainty over time')
-	plt.legend([a,b], ["improved exploration", "normal exploration"])
+	plt.legend([a,b,c], ["HE", "UHE", "AEP"])
 
-	plt.subplot(3,2,2)
-	[a,b] = plt.plot(time, heAverage, 'r', time, aepAverage, 'b')
+	plt.subplot(4,2,2)
+	[a,b,c] = plt.plot(time, heAverage, 'r', time, ibAverage, 'b', time, aepAverage, 'g')
 	plt.xlabel('Time')
 	plt.ylabel('Average uncertainty')
 	plt.title('Average uncertainty over time')
-	plt.legend([a,b], ["improved exploration", "normal exploration"])
+	plt.legend([a,b,c], ["HE", "UHE", "AEP"])
 
 	num_plots = 5
 	colors = [plt.cm.jet(i) for i in np.linspace(0, 1, num_plots)]
 
 	plt.rc('axes', prop_cycle=plt.cycler('color', colors))
 
-	plt.subplot(3,2,3)
+
+
+	plt.subplot(4,2,3)
 	labels = []
 	data = np.array(list(heHistogram_f))
-
 	for indx in range(0, num_plots):
 	    plt.plot(time, data.transpose()[indx])
 	    labels.append(r'$%.2f - %.2f$' % (indx*0.5/num_plots, (indx+1)*0.5/num_plots))
 	plt.xlabel('Time')
 	plt.ylabel('Number of cells')
-	plt.title('Number of free cells in uncertainty interval for improved exploration')
+	plt.title('HE-Number of free cells in uncertainty interval for improved exploration')
 	plt.legend(labels)
 
-	plt.subplot(3,2,4)
+	plt.subplot(4,2,4)
 	labels = []
 	data = np.array(list(heHistogram_o))
 	for indx in range(0, num_plots):
@@ -193,10 +202,36 @@ def plotGraphs(time, heGraph, aepGraph):
 	    labels.append(r'$%.2f - %.2f$' % (indx*0.5/num_plots+0.5, (indx+1)*0.5/num_plots+0.5))
 	plt.xlabel('Time')
 	plt.ylabel('Number of cells')
-	plt.title('Number of occupied cells in uncertainty interval for improved exploration')
+	plt.title('HE-Number of occupied cells in uncertainty interval for improved exploration')
 	plt.legend(labels)
 
-	plt.subplot(3,2,5)
+
+
+	plt.subplot(4,2,5)
+	labels = []
+	data = np.array(list(ibHistogram_f))
+	for indx in range(0, num_plots):
+	    plt.plot(time, data.transpose()[indx])
+	    labels.append(r'$%.2f - %.2f$' % (indx*0.5/num_plots, (indx+1)*0.5/num_plots))
+	plt.xlabel('Time')
+	plt.ylabel('Number of cells')
+	plt.title('UHE-Number of free cells in uncertainty interval for normal exploration')
+	plt.legend(labels)
+
+	plt.subplot(4,2,6)
+	labels = []
+	data = np.array(list(ibHistogram_o))
+	for indx in range(0, num_plots):
+	    plt.plot(time, data.transpose()[indx])
+	    labels.append(r'$%.2f - %.2f$' % (indx*0.5/num_plots+0.5, (indx+1)*0.5/num_plots+0.5))
+	plt.xlabel('Time')
+	plt.ylabel('Number of cells')
+	plt.title('UHE-Number of occupied cells in uncertainty interval for normal exploration')
+	plt.legend(labels)
+
+
+
+	plt.subplot(4,2,7)
 	labels = []
 	data = np.array(list(aepHistogram_f))
 	for indx in range(0, num_plots):
@@ -204,10 +239,10 @@ def plotGraphs(time, heGraph, aepGraph):
 	    labels.append(r'$%.2f - %.2f$' % (indx*0.5/num_plots, (indx+1)*0.5/num_plots))
 	plt.xlabel('Time')
 	plt.ylabel('Number of cells')
-	plt.title('Number of free cells in uncertainty interval for normal exploration')
+	plt.title('AEP-Number of free cells in uncertainty interval for normal exploration')
 	plt.legend(labels)
 
-	plt.subplot(3,2,6)
+	plt.subplot(4,2,8)
 	labels = []
 	data = np.array(list(aepHistogram_o))
 	for indx in range(0, num_plots):
@@ -215,26 +250,159 @@ def plotGraphs(time, heGraph, aepGraph):
 	    labels.append(r'$%.2f - %.2f$' % (indx*0.5/num_plots+0.5, (indx+1)*0.5/num_plots+0.5))
 	plt.xlabel('Time')
 	plt.ylabel('Number of cells')
-	plt.title('Number of occupied cells in uncertainty interval for normal exploration')
+	plt.title('AEP-Number of occupied cells in uncertainty interval for normal exploration')
 	plt.legend(labels)
 
+
+def saveGraphs(time, environment, heGraph, ibGraph, aepGraph):
+	heUncertainty = heGraph.get_uncertainty()
+	ibUncertainty = ibGraph.get_uncertainty()
+	aepUncertainty = aepGraph.get_uncertainty()
+
+	heAverage = heGraph.get_average()
+	ibAverage = ibGraph.get_average()
+	aepAverage = aepGraph.get_average()
+
+	heHistogram_o = heGraph.get_histogram_o()
+	ibHistogram_o = ibGraph.get_histogram_o()
+	aepHistogram_o = aepGraph.get_histogram_o()
+
+	heHistogram_f = heGraph.get_histogram_f()
+	ibHistogram_f = ibGraph.get_histogram_f()
+	aepHistogram_f = aepGraph.get_histogram_f()
+
+	[a,b,c] = plt.plot(time, heUncertainty, 'r', time, ibUncertainty, 'b', time, aepUncertainty, 'g')
+	plt.xlabel('Time')
+	plt.ylabel('Total uncertainty')
+	plt.legend([a,b,c], ["HE", "UHE", "AEP"])
+	plt.savefig(environment+'_total.png', bbox_inches='tight')
+	plt.close()
+
+	[a,b,c] = plt.plot(time, heAverage, 'r', time, ibAverage, 'b', time, aepAverage, 'g')
+	plt.xlabel('Time')
+	plt.ylabel('Average uncertainty')
+	plt.legend([a,b,c], ["HE", "UHE", "AEP"])
+	plt.savefig(environment+'_average_occupied.png', bbox_inches='tight')
+	plt.close()
+
+	num_plots = 5
+	colors = [plt.cm.jet(i) for i in np.linspace(0, 1, num_plots)]
+
+	plt.rc('axes', prop_cycle=plt.cycler('color', colors))
+
+
+
+	labels = []
+	data = np.array(list(heHistogram_f))
+	for indx in range(0, num_plots):
+	    plt.plot(time, data.transpose()[indx])
+	    labels.append(r'$%.2f - %.2f$' % (indx*0.5/num_plots, (indx+1)*0.5/num_plots))
+	plt.xlabel('Time')
+	plt.ylabel('Number of cells')
+	plt.legend(labels)
+	plt.savefig(environment+'_free_HE.png', bbox_inches='tight')
+	plt.close()
+
+	labels = []
+	data = np.array(list(heHistogram_o))
+	for indx in range(0, num_plots):
+	    plt.plot(time, data.transpose()[indx])
+	    labels.append(r'$%.2f - %.2f$' % (indx*0.5/num_plots+0.5, (indx+1)*0.5/num_plots+0.5))
+	plt.xlabel('Time')
+	plt.ylabel('Number of cells')
+	plt.legend(labels)
+	plt.savefig(environment+'_occupied_HE.png', bbox_inches='tight')
+	plt.close()
+
+
+
+	labels = []
+	data = np.array(list(ibHistogram_f))
+	for indx in range(0, num_plots):
+	    plt.plot(time, data.transpose()[indx])
+	    labels.append(r'$%.2f - %.2f$' % (indx*0.5/num_plots, (indx+1)*0.5/num_plots))
+	plt.xlabel('Time')
+	plt.ylabel('Number of cells')
+	plt.legend(labels)
+	plt.savefig(environment+'_free_UHE.png', bbox_inches='tight')
+	plt.close()
+
+	labels = []
+	data = np.array(list(ibHistogram_o))
+	for indx in range(0, num_plots):
+	    plt.plot(time, data.transpose()[indx])
+	    labels.append(r'$%.2f - %.2f$' % (indx*0.5/num_plots+0.5, (indx+1)*0.5/num_plots+0.5))
+	plt.xlabel('Time')
+	plt.ylabel('Number of cells')
+	plt.legend(labels)
+	plt.savefig(environment+'_occupied_UHE.png', bbox_inches='tight')
+	plt.close()
+
+
+
+	labels = []
+	data = np.array(list(aepHistogram_f))
+	for indx in range(0, num_plots):
+	    plt.plot(time, data.transpose()[indx])
+	    labels.append(r'$%.2f - %.2f$' % (indx*0.5/num_plots, (indx+1)*0.5/num_plots))
+	plt.xlabel('Time')
+	plt.ylabel('Number of cells')
+	plt.legend(labels)
+	plt.savefig(environment+'_free_AEP.png', bbox_inches='tight')
+	plt.close()
+
+	labels = []
+	data = np.array(list(aepHistogram_o))
+	for indx in range(0, num_plots):
+	    plt.plot(time, data.transpose()[indx])
+	    labels.append(r'$%.2f - %.2f$' % (indx*0.5/num_plots+0.5, (indx+1)*0.5/num_plots+0.5))
+	plt.xlabel('Time')
+	plt.ylabel('Number of cells')
+	plt.legend(labels)
+	plt.savefig(environment+'_occupied_AEP.png', bbox_inches='tight')
+	plt.close()
+
+
+def printGraphs(environment, size, mode):
+	graph = graphs(size, 5)
+	heMergeGraphs = mergeGraphs(size, 5)
+	ibMergeGraphs = mergeGraphs(size, 5)
+	aepMergeGraphs = mergeGraphs(size, 5)
+
+	for x in range(1,10):
+		try:
+			graph.readFile(environment+'_he_'+str(x)+'.txt')
+			heMergeGraphs.addGraph(graph)
+		except Exception as e:
+			print(environment+'_he_'+str(x)+'.txt not found')
+
+		try:
+			graph.readFile(environment+'_ib_'+str(x)+'.txt')
+			ibMergeGraphs.addGraph(graph)
+		except Exception as e:
+			print(environment+'_ib_'+str(x)+'.txt not found')
+
+		try:
+			graph.readFile(environment+'_aep_'+str(x)+'.txt')
+			aepMergeGraphs.addGraph(graph)
+		except Exception as e:
+			print(environment+'_aep_'+str(x)+'.txt not found')
+
+	if mode == 'plot':
+		plotGraphs([i for i in range(0, size)], heMergeGraphs, ibMergeGraphs, aepMergeGraphs)
+	else:
+		saveGraphs([i for i in range(0, size)], environment, heMergeGraphs, ibMergeGraphs, aepMergeGraphs)
+ 
+
+def saveAll():
+	printGraphs('simple',340,'save')
+	printGraphs('rooms',300,'save')
+	printGraphs('office',270,'save')
+
+def plotAll():
+	printGraphs('simple',340,'plot')
+	printGraphs('rooms',300,'plot')
+	printGraphs('office',270,'plot')
 	plt.show()
 
-
-def printGraphs(startFile, endFile):
-	graph = graphs(250, 5)
-	heMergeGraphs = mergeGraphs(250, 5)
-	aepMergeGraphs = mergeGraphs(250, 5)
-
-	for x in range(startFile,endFile+1):
-		print x
-		graph.readFile('simple_he_'+str(x)+'.txt')
-		heMergeGraphs.addGraph(graph)
-		graph.readFile('simple_ib_'+str(x)+'.txt')
-		aepMergeGraphs.addGraph(graph)
-
-	plotGraphs([i for i in range(0, 250)], heMergeGraphs, aepMergeGraphs)
-
-
-
-printGraphs(int(sys.argv[1]),int(sys.argv[2]))
+plotAll()
