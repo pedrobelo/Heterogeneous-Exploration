@@ -57,7 +57,7 @@ class graphs(object):
 					self.uncertainty_occupied[int(math.floor(float(row[0])-min_))] += float(row[4])
 					self.uncertainty_free[int(math.floor(float(row[0])-min_))] += float(row[5])
 
-					values = row[3:]
+					values = row[6:]
 					self.add(values, float(row[0])-min_)
 
 					self.count[int(math.floor(float(row[0])-min_))] += 1
@@ -530,4 +530,4 @@ def plotAll():
 	printGraphs('office',270,'plot')
 	plt.show()
 
-plotAll()
+saveAll()

@@ -34,8 +34,8 @@ world_frame: "iris_1/map"
 
 # bounding box: necessary to limit the simulation 
 # scenario (smaller than actual gazebo scenario)
-boundary/min: [ -50.0,  -50.0, 0.2]
-boundary/max: [ 50.0,   50.0,  2.5]
+boundary/min: [ -50.0,  -50.0, 0.61]
+boundary/max: [ 50.0,   50.0,  2.9]
 
 lambda: 0.25
 min_distance: 1.2
