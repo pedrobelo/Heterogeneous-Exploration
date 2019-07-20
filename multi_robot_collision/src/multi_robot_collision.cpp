@@ -157,7 +157,7 @@ bool multi_robot_collision_node::block_path(multi_robot_collision::add_line_segm
 
 	//check if received path is free and, if so, start broadcasting it
 	res.success = multi_robot_collision_node::free_space(pt1, pt2);
-	broadcast = res.success;
+	broadcast = res.success & req.broadcast;
 
 	return true;
 }

@@ -5,6 +5,7 @@ add_compile_options(-std=c++11)
 
 find_package(catkin REQUIRED COMPONENTS
   stl_aeplanner_msgs
+  multi_robot_collision
   dd_gazebo_plugins
   roscpp
   geometry_msgs
@@ -15,7 +16,6 @@ find_package(catkin REQUIRED COMPONENTS
   genmsg 
   actionlib_msgs 
   actionlib
-
   dynamic_reconfigure
 )
 find_package(cmake_modules REQUIRED)
@@ -60,7 +60,7 @@ generate_dynamic_reconfigure_options(
 catkin_package(
   INCLUDE_DIRS include ${Eigen_INCLUDE_DIRS} ${OCTOMAP_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS}
   LIBRARIES stl_aeplanner ${catkin_LIBRARIES} ${OCTOMAP_LIBRARIES} ${OpenMP_LIBS}
-  CATKIN_DEPENDS stl_aeplanner_msgs dd_gazebo_plugins message_runtime roscpp geometry_msgs visualization_msgs tf
+  CATKIN_DEPENDS stl_aeplanner_msgs multi_robot_collision dd_gazebo_plugins message_runtime roscpp geometry_msgs visualization_msgs tf
 )
 
 include_directories(

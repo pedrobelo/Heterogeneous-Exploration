@@ -48,3 +48,4 @@ add_executable(multi_robot_collision src/multi_robot_collision.cpp)
 target_link_libraries(multi_robot_collision
 	${catkin_LIBRARIES}
 )
+add_dependencies(multi_robot_collision ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
