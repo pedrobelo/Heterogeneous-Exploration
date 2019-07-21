@@ -49,7 +49,7 @@ STLAEPlanner::STLAEPlanner(const ros::NodeHandle& nh)
 
   ros::param::get(ns + "/he/robot_name", robot_name);
 
-  interRobotCollision = nh_.serviceClient<multi_robot_collision::add_line_segment>(ns + "multi_robot_collision/block_path");
+  interRobotCollision = nh_.serviceClient<multi_robot_collision::add_line_segment>(ns + "/multi_robot_collision/block_path");
 }
 
 void STLAEPlanner::execute(const stl_aeplanner_msgs::aeplannerGoalConstPtr& goal)
@@ -118,9 +118,16 @@ void STLAEPlanner::execute(const stl_aeplanner_msgs::aeplannerGoalConstPtr& goal
   srv.request.pt2.y = best_branch_root_->children_[0]->state_[1];
   srv.request.pt2.z = best_branch_root_->children_[0]->state_[2];
   srv.request.broadcast = true;
-  interRobotCollision.call(srv);
-  while(srv.response.success)
-    interRobotCollision.call(srv);
+  
+  do {
+    if(!interRobotCollision.call(srv))
+    {
+      srv.response.success = false;
+      ROS_ERROR_STREAM("Failed to call service interRobotCollision");
+      ROS_ERROR_STREAM(ros::this_node::getNamespace() + "multi_robot_collision/block_path");
+    }
+  }while(!srv.response.success);
+
 
   if (best_node_->score(stl_rtree, ltl_lambda_, ltl_min_distance_, ltl_max_distance_, ltl_min_distance_active_,
                         ltl_max_distance_active_, ltl_max_search_distance_, params_.bounding_radius, ltl_step_size_,
