@@ -1,41 +1,7 @@
-#include <ros/ros.h>
-#include <eigen3/Eigen/Dense>
-#include <multi_robot_collision/add_line_segment.h>
-#include <multi_robot_collision/line_segment.h>
-
-#include <tf/transform_broadcaster.h>
-#include <tf2/LinearMath/Quaternion.h>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
-
-#include <visualization_msgs/MarkerArray.h>
-
-#include <limits>
+#include <multi_robot_collision/multi_robot_collision.h>
 
 
-/*
-This class keeps track of other robots. It is used to save planned paths with a time stamp
-so that old paths are simply removed.
-
-Each node sends it's own path periodically so that it is not removed from other robots
-*/
-class robot_tracker
-{
-public:
-	robot_tracker(const Eigen::Vector3f &pt1, const Eigen::Vector3f &pt2, const ros::Time &stamp);
-	bool update(const Eigen::Vector3f &pt1, const Eigen::Vector3f &pt2, const ros::Time &stamp);
-	bool expired();
-
-	//start and end point of the path(considered a straight line)
-	Eigen::Vector3f pt1_, pt2_;
-
-	//time stamp of when the path was received
-	ros::Time stamp_;
-
-	//maximum time a path is kept without any updates
-	ros::Duration keep_alive_;	
-};
-
-robot_tracker::robot_tracker(const Eigen::Vector3f &pt1, const Eigen::Vector3f &pt2, const ros::Time &stamp) : keep_alive_(0.1) {
+robot_tracker::robot_tracker(const Eigen::Vector3f &pt1, const Eigen::Vector3f &pt2, const ros::Time &stamp) : keep_alive_(0.2) {
 	pt1_ = pt1;
 	pt2_ = pt2;
 	stamp_ = stamp;
@@ -56,56 +22,18 @@ bool robot_tracker::update(const Eigen::Vector3f &pt1, const Eigen::Vector3f &pt
 bool robot_tracker::expired() {
 	ros::Duration difference = ros::Time::now() - stamp_;
 
+	ROS_ERROR_STREAM("time-->" << difference);
+
 	if(difference > keep_alive_)
 		return true;
 	return false;
 }
 
 
-class multi_robot_collision_node
-{
-public:
-	multi_robot_collision_node(const ros::NodeHandle &n);
-	void broadcaster();
-
-	Eigen::Vector3f pt1_, pt2_;
-
-private:
-	//vector with all the paths of other robots
-	std::vector<robot_tracker> robot_tracker_;
-
-	//minimum distance between robots' paths
-	double distance_threshold_;
-
-	//broadcast its own path or not
-	bool broadcast;
-
-	//publish markers of the path/closest points between paths
-	bool visualization_;
-
-	multi_robot_collision::line_segment msg_;
-	ros::NodeHandle n_;
-	ros::Publisher pub;
-	ros::Subscriber sub;
-	ros::ServiceServer srv;
-	ros::Publisher marker_pub;
-
-	void pathCallback(const multi_robot_collision::line_segment::ConstPtr& msg);
-	bool block_path(multi_robot_collision::add_line_segment::Request &req, multi_robot_collision::add_line_segment::Response &res);
-	bool free_space(const Eigen::Vector3f &pt1, const Eigen::Vector3f &pt2);
-	float distance_between_two_lines(const Eigen::Vector3f &start1, const Eigen::Vector3f &start2, const Eigen::Vector3f &finish1, const Eigen::Vector3f &finish2, Eigen::Vector3f &pt1_seg, Eigen::Vector3f &pt2_seg);
-	float distance_point_line_segment(const Eigen::Vector3f &pt1, const Eigen::Vector3f &pt2, const Eigen::Vector3f &point, Eigen::Vector3f &closest_pt);
-	float distance_between_points(const Eigen::Vector3f &p1, const Eigen::Vector3f &p2);
-	bool point_inside_line_segment(const Eigen::Vector3f &start, const Eigen::Vector3f &finish, const Eigen::Vector3f &point);
-	float distance_between_line_segments(const Eigen::Vector3f &start1, const Eigen::Vector3f &start2, const Eigen::Vector3f &finish1, const Eigen::Vector3f &finish2, const int &mode);
-	void visualization(const Eigen::Vector3f &pt1, const Eigen::Vector3f &pt2, int mode);
-};
 
 multi_robot_collision_node::multi_robot_collision_node(const ros::NodeHandle &n) : n_(n) {
 	broadcast = false;
-	pub = n_.advertise<multi_robot_collision::line_segment>("/occupied", 1000);
 	sub = n_.subscribe("/occupied", 1000, &multi_robot_collision_node::pathCallback, this);
-	srv = n_.advertiseService("block_path", &multi_robot_collision_node::block_path, this);
 	marker_pub = n_.advertise<visualization_msgs::MarkerArray>("visualization_marker", 1);
 
 	if(!n_.getParam("distance_threshold", distance_threshold_))
@@ -113,6 +41,22 @@ multi_robot_collision_node::multi_robot_collision_node(const ros::NodeHandle &n)
 
 	if(!n_.getParam("visualization", visualization_))
 		visualization_ = 0.1;
+
+	std::string robot_name;
+
+	n_.getParam("robot_name", robot_name);
+
+	srvClient = n_.serviceClient<multi_robot_collision::add_line_segment>(robot_name + "/block_path");
+}
+
+void multi_robot_collision_node::remove() {
+	//search for the path, if it already exists, and update it (update time stamp)
+	for (int i = 0; i < robot_tracker_.size(); i++) {
+		if(robot_tracker_[i].expired()) {
+			robot_tracker_.erase(robot_tracker_.begin()+i);
+			i--;
+		}
+	}
 }
 
 void multi_robot_collision_node::pathCallback(const multi_robot_collision::line_segment::ConstPtr& msg){
@@ -122,7 +66,7 @@ void multi_robot_collision_node::pathCallback(const multi_robot_collision::line_
 	pt2(0) = msg->pt2.x; pt2(1) = msg->pt2.y; pt2(2) = msg->pt2.z;
 
 	//if it is own path, discard it
-	if(pt1 == pt1_ && pt2 == pt2_ && broadcast)
+	if(pt1 == pt1_ && pt2 == pt2_)
 		return;
 
 	//search for the path, if it already exists, and update it (update time stamp)
@@ -136,60 +80,37 @@ void multi_robot_collision_node::pathCallback(const multi_robot_collision::line_
 	robot_tracker_.push_back(rt);
 }
 
-bool multi_robot_collision_node::block_path(multi_robot_collision::add_line_segment::Request &req, multi_robot_collision::add_line_segment::Response &res) {
-	Eigen::Vector3f pt1, pt2;
-
-	msg_.pt1.x = req.pt1.x; msg_.pt1.y = req.pt1.y; msg_.pt1.z = req.pt1.z;
-	msg_.pt2.x = req.pt2.x; msg_.pt2.y = req.pt2.y; msg_.pt2.z = req.pt2.z;
-
-	pt1(0) = req.pt1.x; pt1(1) = req.pt1.y; pt1(2) = req.pt1.z;
-	pt2(0) = req.pt2.x; pt2(1) = req.pt2.y; pt2(2) = req.pt2.z;
-
+bool multi_robot_collision_node::block_path(const Eigen::Vector3f &pt1, const Eigen::Vector3f &pt2, bool broadcast) {
+	bool success;
 	//if path is a point, stop broadcasting
-	if(pt1 == pt2) {
-		broadcast = false;
-		res.success = false;
-		return true;
-	}
-	broadcast = true;
 	pt1_ = pt1;
 	pt2_ = pt2;
 
+	multi_robot_collision_node::remove();
 	//check if received path is free and, if so, start broadcasting it
-	res.success = multi_robot_collision_node::free_space(pt1, pt2);
-	broadcast = res.success & req.broadcast;
+	success = multi_robot_collision_node::free_space(pt1, pt2);
+
+	if(success) {
+		msg_.request.pt1.x = pt1(0); msg_.request.pt1.y = pt1(1); msg_.request.pt1.z = pt1(2);
+		msg_.request.pt2.x = pt2(0); msg_.request.pt2.y = pt2(1); msg_.request.pt2.z = pt2(2);
+		if(!srvClient.call(msg_))
+			ROS_ERROR_STREAM("Failed to call service block_path");
+	}
+	else
+		return false;
 
 	return true;
 }
 
-void multi_robot_collision_node::broadcaster() {
-	//erase all expired paths
-	for (int i = 0; i < robot_tracker_.size(); i++) {
-		if(robot_tracker_[i].expired()) {
-			robot_tracker_.erase(robot_tracker_.begin() + i);
-			i--;
-		}
-	}
-
-	//broadcast own path
-	if(broadcast) {
-		msg_.header.stamp = ros::Time::now();
-		pub.publish(msg_);
-		if(visualization_)
-			multi_robot_collision_node::visualization(pt1_, pt2_, 0);
-
-	}
-}
-
 bool multi_robot_collision_node::free_space(const Eigen::Vector3f &pt1, const Eigen::Vector3f &pt2) {
 	double distance;
-
 	//iterate through all paths and see if own path doesn't intersect any of them
 	for (int i = 0; i < robot_tracker_.size(); i++) {
 		distance = multi_robot_collision_node::distance_between_line_segments(pt1, robot_tracker_[i].pt1_, pt2, robot_tracker_[i].pt2_, i+1);
 		if(distance <= distance_threshold_)
 			return false;
 	}
+	multi_robot_collision_node::visualization(pt1, pt2, 0);
 	return true;
 }
 
@@ -265,8 +186,6 @@ float multi_robot_collision_node::distance_between_two_lines(const Eigen::Vector
 	l2_mid = Eigen::Vector3f::Zero ();
 	l2_mid = l2_pt1 + tc * v;
 
-multi_robot_collision_node::visualization(l1_mid, l2_mid, 5);
-
 	if(multi_robot_collision_node::point_inside_line_segment(l1_pt1, l1_pt2, l1_mid) && multi_robot_collision_node::point_inside_line_segment(l2_pt1, l2_pt2, l2_mid)) {
 		float distance = multi_robot_collision_node::distance_between_points(l1_mid, l2_mid);
 
@@ -336,7 +255,7 @@ float multi_robot_collision_node::distance_between_line_segments(const Eigen::Ve
 	distance = multi_robot_collision_node::distance_between_two_lines(l1_pt1, l2_pt1, l1_pt2, l2_pt2, pt1_viz, pt2_viz);
 	if(distance != -1) {
 		if(visualization_)
-			multi_robot_collision_node::visualization(pt1_viz, pt2_viz, 1);
+			multi_robot_collision_node::visualization(pt1_viz, pt2_viz, mode);
 
 		return distance;
 	}
@@ -395,18 +314,15 @@ float multi_robot_collision_node::distance_between_line_segments(const Eigen::Ve
 }
 
 void multi_robot_collision_node::visualization(const Eigen::Vector3f &pt1, const Eigen::Vector3f &pt2, int mode) {
-	
 	float r, g, b;
+	ROS_ERROR_STREAM("mode-->" << mode);
 
 	//paths and shortest distances between paths are colour coded. green for the former, blue for the latter
 	if(mode == 0) {
-		r = 0; g = 1; b = 0;
-	}
-	else if(mode == 1){
 		r = 0; g = 0; b = 1;
 	}
 	else {
-		r = 1; g = 0; b = 0;
+		r = 0; g = 1; b = 0;
 	}
 
 	visualization_msgs::MarkerArray markerarray;
@@ -497,25 +413,4 @@ void multi_robot_collision_node::visualization(const Eigen::Vector3f &pt1, const
 	markerarray.markers.push_back(marker);
 
 	marker_pub.publish( markerarray );
-}
-
-int main(int argc, char **argv)
-{
-	ros::init(argc, argv, "multi_robot_collision");
-	ros::NodeHandle n("~");
-	ros::Rate loop_rate(50);
-
-	multi_robot_collision_node mrc(n);
-
-	while (ros::ok())
-	{
-		mrc.broadcaster();
-		ros::spinOnce();
-
-		loop_rate.sleep();
-	}
-
-	ros::spin();
-
-	return 0;
 }

@@ -34,6 +34,8 @@
 
 #include <dd_gazebo_plugins/Router.h>
 
+#include <multi_robot_collision/multi_robot_collision.h>
+
 namespace stl_aeplanner
 {
 typedef std::pair<point, std::shared_ptr<RRTNode>> value;
@@ -105,6 +107,8 @@ private:
   std::string robot_name;
 
   ros::ServiceClient interRobotCollision;
+
+  multi_robot_collision_node mrcn;
 
   point_rtree getRtree(std::shared_ptr<octomap::OcTree> ot, octomap::point3d min, octomap::point3d max);
 

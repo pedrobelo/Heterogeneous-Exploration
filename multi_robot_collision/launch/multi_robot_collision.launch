@@ -1,16 +1,8 @@
 <?xml version="1.0" ?>
 <launch>
-	<group ns="1_ns">
-		<node name="multi_robot_collision" pkg="multi_robot_collision" type="multi_robot_collision" output="screen">
-			<param name="distance_threshold" value="0.2" />
-			<param name="visualization" value="true" />
-		</node>
-	</group>
-
-	<group ns="2_ns">
-		<node name="multi_robot_collision" pkg="multi_robot_collision" type="multi_robot_collision" output="screen">
-			<param name="distance_threshold" value="0.2" />
-			<param name="visualization" value="true" />
-		</node>
-	</group>
+	<node name="multi_robot_collision" pkg="multi_robot_collision" type="multi_robot_collision" output="screen">
+		<param name="distance_threshold" value="0.2" />
+		<param name="visualization" value="true" />
+		<param name="robot_name" value="/iris_1" />
+	</node>
 </launch>

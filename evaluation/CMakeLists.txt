@@ -35,3 +35,4 @@ include_directories(
 
 add_executable(evaluation src/evaluation.cpp)
 target_link_libraries( evaluation ${catkin_LIBRARIES} ${OCTOMAP_LIBRARIES})
+add_dependencies(evaluation evaluation_generate_messages_cpp)

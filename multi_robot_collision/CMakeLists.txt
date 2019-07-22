@@ -33,19 +33,33 @@ generate_messages(
 )
 
 catkin_package(
-	INCLUDE_DIRS ${Eigen_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS}
+	INCLUDE_DIRS include ${Eigen_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS}
 	LIBRARIES ${catkin_LIBRARIES}
 	CATKIN_DEPENDS message_runtime roscpp tf tf2 visualization_msgs
 	DEPENDS Eigen
 )
 
 include_directories(
+	include
 	${catkin_INCLUDE_DIRS}
 	${Eigen_INCLUDE_DIRS}
 )
 
-add_executable(multi_robot_collision src/multi_robot_collision.cpp)
+add_library(multi_robot_collision src/multi_robot_collision.cpp)
 target_link_libraries(multi_robot_collision
 	${catkin_LIBRARIES}
 )
 add_dependencies(multi_robot_collision ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+add_executable(publisher src/publisher.cpp src/multi_robot_collision.cpp)
+target_link_libraries(publisher
+	${catkin_LIBRARIES}
+)
+add_dependencies(publisher ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+
+add_executable(test src/test.cpp src/multi_robot_collision.cpp)
+target_link_libraries(test
+	${catkin_LIBRARIES}
+)
+add_dependencies(test ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})

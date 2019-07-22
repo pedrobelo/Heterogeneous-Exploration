@@ -4,7 +4,6 @@
 
 #include <stl_aeplanner_msgs/LTLStats.h>
 #include <numeric>
-#include <multi_robot_collision/add_line_segment.h>
 
 #include <queue>
 #include <algorithm>
@@ -30,6 +29,7 @@ STLAEPlanner::STLAEPlanner(const ros::NodeHandle& nh)
   , ltl_path_pub_(nh_.advertise<nav_msgs::Path>("ltl_path", 1000))
   , ltl_stats_pub_(nh_.advertise<stl_aeplanner_msgs::LTLStats>("ltl_stats", 1000))
   , ltl_iterations_(0)
+  , mrcn(nh_)
 {
   // Set up dynamic reconfigure server
   ltl_f_ = boost::bind(&STLAEPlanner::configCallback, this, _1, _2);
@@ -48,8 +48,6 @@ STLAEPlanner::STLAEPlanner(const ros::NodeHandle& nh)
   frame_id_.append("/map");
 
   ros::param::get(ns + "/he/robot_name", robot_name);
-
-  interRobotCollision = nh_.serviceClient<multi_robot_collision::add_line_segment>(ns + "/multi_robot_collision/block_path");
 }
 
 void STLAEPlanner::execute(const stl_aeplanner_msgs::aeplannerGoalConstPtr& goal)
@@ -108,26 +106,15 @@ void STLAEPlanner::execute(const stl_aeplanner_msgs::aeplannerGoalConstPtr& goal
   ROS_WARN("extractPose");
   result.pose.pose = vecToPose(best_branch_root_->children_[0]->state_);
 
-  //insert postition check here
-  multi_robot_collision::add_line_segment srv;
-  srv.request.pt1.x = current_state[0];
-  srv.request.pt1.y = current_state[1];
-  srv.request.pt1.z = current_state[2];
+  Eigen::Vector3f pt1, pt2;
+  pt1(0) = current_state[0];
+  pt1(1) = current_state[1];
+  pt1(2) = current_state[2];
 
-  srv.request.pt2.x = best_branch_root_->children_[0]->state_[0];
-  srv.request.pt2.y = best_branch_root_->children_[0]->state_[1];
-  srv.request.pt2.z = best_branch_root_->children_[0]->state_[2];
-  srv.request.broadcast = true;
-  
-  do {
-    if(!interRobotCollision.call(srv))
-    {
-      srv.response.success = false;
-      ROS_ERROR_STREAM("Failed to call service interRobotCollision");
-      ROS_ERROR_STREAM(ros::this_node::getNamespace() + "multi_robot_collision/block_path");
-    }
-  }while(!srv.response.success);
-
+  pt2(0) = best_branch_root_->children_[0]->state_[0];
+  pt2(1) = best_branch_root_->children_[0]->state_[1];
+  pt2(2) = best_branch_root_->children_[0]->state_[2];  
+  mrcn.block_path(pt1, pt2, true);
 
   if (best_node_->score(stl_rtree, ltl_lambda_, ltl_min_distance_, ltl_max_distance_, ltl_min_distance_active_,
                         ltl_max_distance_active_, ltl_max_search_distance_, params_.bounding_radius, ltl_step_size_,
@@ -501,19 +488,15 @@ bool STLAEPlanner::collisionLine(std::shared_ptr<point_rtree> stl_rtree, Eigen::
       return true;
     }
   }
+  Eigen::Vector3f pt1, pt2;
+  pt1(0) = p1[0];
+  pt1(1) = p1[1];
+  pt1(2) = p1[2];
 
-  multi_robot_collision::add_line_segment srv;
-  srv.request.pt1.x = p1[0];
-  srv.request.pt1.y = p1[1];
-  srv.request.pt1.z = p1[2];
-
-  srv.request.pt2.x = p2[0];
-  srv.request.pt2.y = p2[1];
-  srv.request.pt2.z = p2[2];
-  srv.request.broadcast = false;
-  interRobotCollision.call(srv);
-
-  return srv.response.success;
+  pt2(0) = p1[0];
+  pt2(1) = p1[1];
+  pt2(2) = p1[2];  
+  return mrcn.block_path(pt1, pt2, false);
 }
 
 void STLAEPlanner::octomapCallback(const octomap_msgs::Octomap& msg)
