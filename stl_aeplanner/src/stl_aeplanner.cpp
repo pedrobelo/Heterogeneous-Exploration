@@ -3,6 +3,7 @@
 #include <tf2/utils.h>
 
 #include <stl_aeplanner_msgs/LTLStats.h>
+#include <stl_aeplanner/multi_robot_collision.h>
 #include <numeric>
 
 #include <queue>

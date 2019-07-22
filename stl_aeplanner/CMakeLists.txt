@@ -5,7 +5,6 @@ add_compile_options(-std=c++11)
 
 find_package(catkin REQUIRED COMPONENTS
   stl_aeplanner_msgs
-  multi_robot_collision
   dd_gazebo_plugins
   roscpp
   geometry_msgs
@@ -60,7 +59,7 @@ generate_dynamic_reconfigure_options(
 catkin_package(
   INCLUDE_DIRS include ${Eigen_INCLUDE_DIRS} ${OCTOMAP_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS}
   LIBRARIES stl_aeplanner ${catkin_LIBRARIES} ${OCTOMAP_LIBRARIES} ${OpenMP_LIBS}
-  CATKIN_DEPENDS stl_aeplanner_msgs multi_robot_collision dd_gazebo_plugins message_runtime roscpp geometry_msgs visualization_msgs tf
+  CATKIN_DEPENDS stl_aeplanner_msgs dd_gazebo_plugins message_runtime roscpp geometry_msgs visualization_msgs tf
 )
 
 include_directories(
@@ -70,7 +69,7 @@ include_directories(
   ${OCTOMAP_INCLUDE_DIRS}
 )
 
-add_library(stl_aeplanner src/stl_aeplanner_nodelet.cpp src/stl_aeplanner.cpp src/stl_aeplanner_viz.cpp src/param.cpp)
+add_library(stl_aeplanner src/stl_aeplanner_nodelet.cpp src/stl_aeplanner.cpp src/stl_aeplanner_viz.cpp src/param.cpp src/multi_robot_collision.cpp)
 target_compile_options(stl_aeplanner PRIVATE ${OpenMP_FLAGS})
 target_link_libraries(stl_aeplanner
   ${catkin_LIBRARIES}
@@ -84,7 +83,7 @@ add_dependencies(stl_aeplanner
   ${PROJECT_NAME}_gencfg
 )
 
-add_executable(stl_aeplanner_node src/stl_aeplanner_node.cpp src/stl_aeplanner.cpp src/stl_aeplanner_viz.cpp src/param.cpp)
+add_executable(stl_aeplanner_node src/stl_aeplanner_node.cpp src/stl_aeplanner.cpp src/stl_aeplanner_viz.cpp src/param.cpp src/multi_robot_collision.cpp)
 target_compile_options(stl_aeplanner_node PRIVATE ${OpenMP_FLAGS})
 target_link_libraries(stl_aeplanner_node
   ${catkin_LIBRARIES}
@@ -97,3 +96,16 @@ add_dependencies(stl_aeplanner_node
   stl_aeplanner_ref_generate_messages_cpp
   ${PROJECT_NAME}_gencfg
 )
+
+add_executable(publisher src/publisher.cpp src/multi_robot_collision.cpp)
+target_link_libraries(publisher
+  ${catkin_LIBRARIES}
+)
+add_dependencies(publisher ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+
+add_executable(test src/test.cpp src/multi_robot_collision.cpp)
+target_link_libraries(test
+  ${catkin_LIBRARIES}
+)
+add_dependencies(test ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})

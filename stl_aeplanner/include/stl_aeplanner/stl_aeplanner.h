@@ -34,7 +34,7 @@
 
 #include <dd_gazebo_plugins/Router.h>
 
-#include <multi_robot_collision/multi_robot_collision.h>
+#include <stl_aeplanner/multi_robot_collision.h>
 
 namespace stl_aeplanner
 {

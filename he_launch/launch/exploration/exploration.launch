@@ -34,9 +34,11 @@
         <remap from="/mavros/setpoint_position/local" to="/$(arg robot_name)/mavros/setpoint_position/local"/>
       </node>
       <rosparam command="load" file="$(arg param_file)" />
-        <node name="multi_robot_collision" pkg="multi_robot_collision" type="multi_robot_collision" output="screen">
+        
+      <node name="multi_robot_collision" pkg="stl_aeplanner" type="publisher" output="screen">
         <param name="distance_threshold" value="0.2" />
         <param name="visualization" value="true" />
+        <param name="robot_name" value="/iris_1" />
       </node>
     </group>
 

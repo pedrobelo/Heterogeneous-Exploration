@@ -1,14 +1,14 @@
-#include <multi_robot_collision/multi_robot_collision.h>
+#include <stl_aeplanner/multi_robot_collision.h>
 
 class pubCollision
 {
 public:
 	pubCollision(const ros::NodeHandle &n);
-	bool block_path_service(multi_robot_collision::add_line_segment::Request &req, multi_robot_collision::add_line_segment::Response &res);
+	bool block_path_service(stl_aeplanner_msgs::add_line_segment::Request &req, stl_aeplanner_msgs::add_line_segment::Response &res);
 	void pubF();
 
 	ros::Publisher pub;
-	multi_robot_collision::line_segment msg_;
+	stl_aeplanner_msgs::line_segment msg_;
 	ros::NodeHandle n_;
 	ros::ServiceServer srv;
 	bool init = false;
@@ -18,11 +18,11 @@ pubCollision::pubCollision(const ros::NodeHandle &n) : n_(n) {
 	std::string robot_name;
 
 	n_.getParam("robot_name", robot_name);
-	pub = n_.advertise<multi_robot_collision::line_segment>("/occupied", 1000);
+	pub = n_.advertise<stl_aeplanner_msgs::line_segment>("/occupied", 1000);
 	srv = n_.advertiseService(robot_name + "/block_path", &pubCollision::block_path_service, this);
 }
 
-bool pubCollision::block_path_service(multi_robot_collision::add_line_segment::Request &req, multi_robot_collision::add_line_segment::Response &res) {
+bool pubCollision::block_path_service(stl_aeplanner_msgs::add_line_segment::Request &req, stl_aeplanner_msgs::add_line_segment::Response &res) {
 	msg_.pt1.x = req.pt1.x; msg_.pt1.y = req.pt1.y; msg_.pt1.z = req.pt1.z;
 	msg_.pt2.x = req.pt2.x; msg_.pt2.y = req.pt2.y; msg_.pt2.z = req.pt2.z;
 	init = true;

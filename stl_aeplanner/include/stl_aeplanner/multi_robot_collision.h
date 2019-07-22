@@ -4,8 +4,8 @@
 
 #include <ros/ros.h>
 #include <eigen3/Eigen/Dense>
-#include <multi_robot_collision/add_line_segment.h>
-#include <multi_robot_collision/line_segment.h>
+#include <stl_aeplanner_msgs/add_line_segment.h>
+#include <stl_aeplanner_msgs/line_segment.h>
 
 #include <tf/transform_broadcaster.h>
 #include <tf2/LinearMath/Quaternion.h>
@@ -50,7 +50,7 @@ public:
 	Eigen::Vector3f pt1_, pt2_;
 
 	void remove();
-	void pathCallback(const multi_robot_collision::line_segment::ConstPtr& msg);
+	void pathCallback(const stl_aeplanner_msgs::line_segment::ConstPtr& msg);
 	bool block_path(const Eigen::Vector3f &pt1, const Eigen::Vector3f &pt2, bool broadcast);
 	bool free_space(const Eigen::Vector3f &pt1, const Eigen::Vector3f &pt2);
 	float distance_between_two_lines(const Eigen::Vector3f &start1, const Eigen::Vector3f &start2, const Eigen::Vector3f &finish1, const Eigen::Vector3f &finish2, Eigen::Vector3f &pt1_seg, Eigen::Vector3f &pt2_seg);
@@ -73,7 +73,7 @@ private:
 	//broadcast its own path or not
 	bool broadcast;
 
-	multi_robot_collision::add_line_segment msg_;
+	stl_aeplanner_msgs::add_line_segment msg_;
 	ros::NodeHandle n_;
 	ros::Subscriber sub;
 	ros::Publisher marker_pub;

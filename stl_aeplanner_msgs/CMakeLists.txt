@@ -13,6 +13,7 @@ add_message_files(
   LTLStats.msg
   Node.msg
   Volume.msg
+  line_segment.msg
 )
 
 add_service_files(
@@ -21,6 +22,7 @@ add_service_files(
   Coverage.srv
   Query.srv
   Reevaluate.srv
+  add_line_segment.srv
 )
 
 add_action_files(

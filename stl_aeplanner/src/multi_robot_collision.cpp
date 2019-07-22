@@ -1,4 +1,4 @@
-#include <multi_robot_collision/multi_robot_collision.h>
+#include <stl_aeplanner/multi_robot_collision.h>
 
 
 robot_tracker::robot_tracker(const Eigen::Vector3f &pt1, const Eigen::Vector3f &pt2, const ros::Time &stamp) : keep_alive_(0.2) {
@@ -46,7 +46,7 @@ multi_robot_collision_node::multi_robot_collision_node(const ros::NodeHandle &n)
 
 	n_.getParam("robot_name", robot_name);
 
-	srvClient = n_.serviceClient<multi_robot_collision::add_line_segment>(robot_name + "/block_path");
+	srvClient = n_.serviceClient<stl_aeplanner_msgs::add_line_segment>(robot_name + "/block_path");
 }
 
 void multi_robot_collision_node::remove() {
@@ -59,7 +59,7 @@ void multi_robot_collision_node::remove() {
 	}
 }
 
-void multi_robot_collision_node::pathCallback(const multi_robot_collision::line_segment::ConstPtr& msg){
+void multi_robot_collision_node::pathCallback(const stl_aeplanner_msgs::line_segment::ConstPtr& msg){
 	Eigen::Vector3f pt1, pt2;
 
 	pt1(0) = msg->pt1.x; pt1(1) = msg->pt1.y; pt1(2) = msg->pt1.z;
