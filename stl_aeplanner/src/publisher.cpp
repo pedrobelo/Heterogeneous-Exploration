@@ -42,7 +42,7 @@ int main(int argc, char **argv)
 {
 	ros::init(argc, argv, "pubCollision");
 	ros::NodeHandle n("~");
-	ros::Rate loop_rate(50);
+	ros::Rate loop_rate(10);
 
 	pubCollision pc(n);
 

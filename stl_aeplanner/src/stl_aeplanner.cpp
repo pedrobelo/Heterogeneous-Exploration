@@ -494,9 +494,9 @@ bool STLAEPlanner::collisionLine(std::shared_ptr<point_rtree> stl_rtree, Eigen::
   pt1(1) = p1[1];
   pt1(2) = p1[2];
 
-  pt2(0) = p1[0];
-  pt2(1) = p1[1];
-  pt2(2) = p1[2];  
+  pt2(0) = p2[0];
+  pt2(1) = p2[1];
+  pt2(2) = p2[2];  
   return !mrcn.block_path(pt1, pt2, false);
 }
 

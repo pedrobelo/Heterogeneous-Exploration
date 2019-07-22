@@ -80,6 +80,10 @@ void multi_robot_collision_node::pathCallback(const stl_aeplanner_msgs::line_seg
 }
 
 bool multi_robot_collision_node::block_path(const Eigen::Vector3f &pt1, const Eigen::Vector3f &pt2, bool broadcast) {
+	ROS_ERROR_STREAM("points");
+	ROS_ERROR_STREAM(pt1);
+	ROS_ERROR_STREAM(pt2);
+
 	bool success;
 	//if path is a point, stop broadcasting
 	pt1_ = pt1;
@@ -314,6 +318,7 @@ float multi_robot_collision_node::distance_between_line_segments(const Eigen::Ve
 
 void multi_robot_collision_node::visualization(const Eigen::Vector3f &pt1, const Eigen::Vector3f &pt2, int mode) {
 	float r, g, b;
+
 
 	//paths and shortest distances between paths are colour coded. green for the former, blue for the latter
 	if(mode == 0) {
