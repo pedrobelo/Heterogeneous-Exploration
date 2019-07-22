@@ -497,7 +497,7 @@ bool STLAEPlanner::collisionLine(std::shared_ptr<point_rtree> stl_rtree, Eigen::
   pt2(0) = p1[0];
   pt2(1) = p1[1];
   pt2(2) = p1[2];  
-  return mrcn.block_path(pt1, pt2, false);
+  return !mrcn.block_path(pt1, pt2, false);
 }
 
 void STLAEPlanner::octomapCallback(const octomap_msgs::Octomap& msg)

@@ -35,10 +35,10 @@
       </node>
       <rosparam command="load" file="$(arg param_file)" />
         
-      <node name="multi_robot_collision" pkg="stl_aeplanner" type="publisher" output="screen">
+      <node name="pubCollision" pkg="stl_aeplanner" type="publisher" output="screen">
         <param name="distance_threshold" value="0.2" />
         <param name="visualization" value="true" />
-        <param name="robot_name" value="/iris_1" />
+        <param name="robot_name" value="/$(arg robot_name)" />
       </node>
     </group>
 

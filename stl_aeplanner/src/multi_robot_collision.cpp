@@ -22,8 +22,6 @@ bool robot_tracker::update(const Eigen::Vector3f &pt1, const Eigen::Vector3f &pt
 bool robot_tracker::expired() {
 	ros::Duration difference = ros::Time::now() - stamp_;
 
-	ROS_ERROR_STREAM("time-->" << difference);
-
 	if(difference > keep_alive_)
 		return true;
 	return false;
@@ -44,9 +42,10 @@ multi_robot_collision_node::multi_robot_collision_node(const ros::NodeHandle &n)
 
 	std::string robot_name;
 
-	n_.getParam("robot_name", robot_name);
+	ros::param::get(ros::this_node::getNamespace() + "/he/robot_name", robot_name);
 
-	srvClient = n_.serviceClient<stl_aeplanner_msgs::add_line_segment>(robot_name + "/block_path");
+	ROS_ERROR_STREAM("/" + robot_name + "/block_path");
+	srvClient = n_.serviceClient<stl_aeplanner_msgs::add_line_segment>("/" + robot_name + "/block_path");
 }
 
 void multi_robot_collision_node::remove() {
@@ -315,7 +314,6 @@ float multi_robot_collision_node::distance_between_line_segments(const Eigen::Ve
 
 void multi_robot_collision_node::visualization(const Eigen::Vector3f &pt1, const Eigen::Vector3f &pt2, int mode) {
 	float r, g, b;
-	ROS_ERROR_STREAM("mode-->" << mode);
 
 	//paths and shortest distances between paths are colour coded. green for the former, blue for the latter
 	if(mode == 0) {
