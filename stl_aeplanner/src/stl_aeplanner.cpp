@@ -49,6 +49,15 @@ STLAEPlanner::STLAEPlanner(const ros::NodeHandle& nh)
   frame_id_.append("/map");
 
   ros::param::get(ns + "/he/robot_name", robot_name);
+
+  tf::TransformListener listener;
+  try{
+    listener.lookupTransform("/world", frame_id_, ros::Time(0), transform_);
+  }
+  catch (tf::TransformException &ex) {
+    ROS_ERROR("%s",ex.what());
+    ros::Duration(1.0).sleep();
+  }
 }
 
 void STLAEPlanner::execute(const stl_aeplanner_msgs::aeplannerGoalConstPtr& goal)
@@ -108,13 +117,13 @@ void STLAEPlanner::execute(const stl_aeplanner_msgs::aeplannerGoalConstPtr& goal
   result.pose.pose = vecToPose(best_branch_root_->children_[0]->state_);
 
   Eigen::Vector3f pt1, pt2;
-  pt1(0) = current_state[0];
-  pt1(1) = current_state[1];
-  pt1(2) = current_state[2];
+  pt1(0) = current_state[0] + transform_.getOrigin().x();
+  pt1(1) = current_state[1] + transform_.getOrigin().y();
+  pt1(2) = current_state[2] + transform_.getOrigin().z();
 
-  pt2(0) = best_branch_root_->children_[0]->state_[0];
-  pt2(1) = best_branch_root_->children_[0]->state_[1];
-  pt2(2) = best_branch_root_->children_[0]->state_[2];  
+  pt2(0) = best_branch_root_->children_[0]->state_[0] + transform_.getOrigin().x();
+  pt2(1) = best_branch_root_->children_[0]->state_[1] + transform_.getOrigin().y();
+  pt2(2) = best_branch_root_->children_[0]->state_[2] + transform_.getOrigin().z();  
   mrcn.block_path(pt1, pt2, true);
 
   if (best_node_->score(stl_rtree, ltl_lambda_, ltl_min_distance_, ltl_max_distance_, ltl_min_distance_active_,
@@ -490,13 +499,13 @@ bool STLAEPlanner::collisionLine(std::shared_ptr<point_rtree> stl_rtree, Eigen::
     }
   }
   Eigen::Vector3f pt1, pt2;
-  pt1(0) = p1[0];
-  pt1(1) = p1[1];
-  pt1(2) = p1[2];
+  pt1(0) = p1[0] + transform_.getOrigin().x();
+  pt1(1) = p1[1] + transform_.getOrigin().y();
+  pt1(2) = p1[2] + transform_.getOrigin().z();
 
-  pt2(0) = p2[0];
-  pt2(1) = p2[1];
-  pt2(2) = p2[2];  
+  pt2(0) = p2[0] + transform_.getOrigin().x();
+  pt2(1) = p2[1] + transform_.getOrigin().y();
+  pt2(2) = p2[2] + transform_.getOrigin().z();  
   return !mrcn.block_path(pt1, pt2, false);
 }
 

@@ -84,6 +84,11 @@ bool multi_robot_collision_node::block_path(const Eigen::Vector3f &pt1, const Ei
 	ROS_ERROR_STREAM(pt1);
 	ROS_ERROR_STREAM(pt2);
 
+	if(broadcast)
+		visualization_ = true;
+	else
+		visualization_ = false;
+
 	bool success;
 	//if path is a point, stop broadcasting
 	pt1_ = pt1;

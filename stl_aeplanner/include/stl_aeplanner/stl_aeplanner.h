@@ -105,10 +105,9 @@ private:
   double max_sampling_radius_squared_;
 
   std::string robot_name;
-
   ros::ServiceClient interRobotCollision;
-
   multi_robot_collision_node mrcn;
+  tf::StampedTransform transform_;
 
   point_rtree getRtree(std::shared_ptr<octomap::OcTree> ot, octomap::point3d min, octomap::point3d max);
 
