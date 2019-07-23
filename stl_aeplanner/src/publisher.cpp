@@ -20,7 +20,8 @@ pubCollision::pubCollision(const ros::NodeHandle &n) : n_(n) {
 	n_.getParam("robot_name", robot_name);
 	ROS_ERROR_STREAM(robot_name + "/block_path");
 	pub = n_.advertise<stl_aeplanner_msgs::line_segment>("/occupied", 1000);
-	srv = n_.advertiseService(robot_name + "/block_path", &pubCollision::block_path_service, this);
+	srv = n_.advertiseService("/" + robot_name + "/block_path", &pubCollision::block_path_service, this);
+	msg_.robot_name.data = robot_name;
 }
 
 bool pubCollision::block_path_service(stl_aeplanner_msgs::add_line_segment::Request &req, stl_aeplanner_msgs::add_line_segment::Response &res) {

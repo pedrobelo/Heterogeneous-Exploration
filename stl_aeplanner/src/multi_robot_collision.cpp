@@ -40,12 +40,9 @@ multi_robot_collision_node::multi_robot_collision_node(const ros::NodeHandle &n)
 	if(!n_.getParam("visualization", visualization_))
 		visualization_ = 0.1;
 
-	std::string robot_name;
+	ros::param::get(ros::this_node::getNamespace() + "/he/robot_name", robot_name.data);
 
-	ros::param::get(ros::this_node::getNamespace() + "/he/robot_name", robot_name);
-
-	ROS_ERROR_STREAM("/" + robot_name + "/block_path");
-	srvClient = n_.serviceClient<stl_aeplanner_msgs::add_line_segment>("/" + robot_name + "/block_path");
+	srvClient = n_.serviceClient<stl_aeplanner_msgs::add_line_segment>("/" + robot_name.data + "/block_path");
 }
 
 void multi_robot_collision_node::remove() {
@@ -59,6 +56,11 @@ void multi_robot_collision_node::remove() {
 }
 
 void multi_robot_collision_node::pathCallback(const stl_aeplanner_msgs::line_segment::ConstPtr& msg){
+	ROS_ERROR_STREAM(msg->robot_name.data);
+	ROS_ERROR_STREAM(robot_name.data);
+	if(msg->robot_name.data == robot_name.data) 
+		return;
+
 	Eigen::Vector3f pt1, pt2;
 
 	pt1(0) = msg->pt1.x; pt1(1) = msg->pt1.y; pt1(2) = msg->pt1.z;
@@ -80,9 +82,6 @@ void multi_robot_collision_node::pathCallback(const stl_aeplanner_msgs::line_seg
 }
 
 bool multi_robot_collision_node::block_path(const Eigen::Vector3f &pt1, const Eigen::Vector3f &pt2, bool broadcast) {
-	ROS_ERROR_STREAM("points");
-	ROS_ERROR_STREAM(pt1);
-	ROS_ERROR_STREAM(pt2);
 
 	if(broadcast)
 		visualization_ = true;
@@ -98,16 +97,16 @@ bool multi_robot_collision_node::block_path(const Eigen::Vector3f &pt1, const Ei
 	//check if received path is free and, if so, start broadcasting it
 	success = multi_robot_collision_node::free_space(pt1, pt2);
 
-	if(success) {
+	if(success && broadcast) {
 		msg_.request.pt1.x = pt1(0); msg_.request.pt1.y = pt1(1); msg_.request.pt1.z = pt1(2);
 		msg_.request.pt2.x = pt2(0); msg_.request.pt2.y = pt2(1); msg_.request.pt2.z = pt2(2);
 		if(!srvClient.call(msg_))
 			ROS_ERROR_STREAM("Failed to call service block_path");
 	}
-	else
-		return false;
-
-	return true;
+	
+	if(success)
+		return true;
+	return false;
 }
 
 bool multi_robot_collision_node::free_space(const Eigen::Vector3f &pt1, const Eigen::Vector3f &pt2) {
@@ -118,7 +117,8 @@ bool multi_robot_collision_node::free_space(const Eigen::Vector3f &pt1, const Ei
 		if(distance <= distance_threshold_)
 			return false;
 	}
-	multi_robot_collision_node::visualization(pt1, pt2, 0);
+	if(visualization_)
+		multi_robot_collision_node::visualization(pt1, pt2, 0);
 	return true;
 }
 

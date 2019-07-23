@@ -78,6 +78,7 @@ private:
 	ros::Subscriber sub;
 	ros::Publisher marker_pub;
 	ros::ServiceClient srvClient;
+	std_msgs::String robot_name;
 };
 
 #endif

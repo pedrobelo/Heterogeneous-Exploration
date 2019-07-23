@@ -51,6 +51,7 @@ STLAEPlanner::STLAEPlanner(const ros::NodeHandle& nh)
   ros::param::get(ns + "/he/robot_name", robot_name);
 
   tf::TransformListener listener;
+  listener.waitForTransform("/world", frame_id_, ros::Time::now(), ros::Duration(20.0));
   try{
     listener.lookupTransform("/world", frame_id_, ros::Time(0), transform_);
   }
@@ -116,21 +117,21 @@ void STLAEPlanner::execute(const stl_aeplanner_msgs::aeplannerGoalConstPtr& goal
   ROS_WARN("extractPose");
   result.pose.pose = vecToPose(best_branch_root_->children_[0]->state_);
 
-  Eigen::Vector3f pt1, pt2;
-  pt1(0) = current_state[0] + transform_.getOrigin().x();
-  pt1(1) = current_state[1] + transform_.getOrigin().y();
-  pt1(2) = current_state[2] + transform_.getOrigin().z();
-
-  pt2(0) = best_branch_root_->children_[0]->state_[0] + transform_.getOrigin().x();
-  pt2(1) = best_branch_root_->children_[0]->state_[1] + transform_.getOrigin().y();
-  pt2(2) = best_branch_root_->children_[0]->state_[2] + transform_.getOrigin().z();  
-  mrcn.block_path(pt1, pt2, true);
-
   if (best_node_->score(stl_rtree, ltl_lambda_, ltl_min_distance_, ltl_max_distance_, ltl_min_distance_active_,
                         ltl_max_distance_active_, ltl_max_search_distance_, params_.bounding_radius, ltl_step_size_,
                         ltl_routers_, ltl_routers_active_, params_.lambda, ltl_min_altitude_, ltl_max_altitude_,
-                        ltl_min_altitude_active_, ltl_max_altitude_active_) > params_.zero_gain)
+                        ltl_min_altitude_active_, ltl_max_altitude_active_) > params_.zero_gain) {
+    Eigen::Vector3f pt1, pt2;
+    pt1(0) = current_state[0] + transform_.getOrigin().x();
+    pt1(1) = current_state[1] + transform_.getOrigin().y();
+    pt1(2) = current_state[2] + transform_.getOrigin().z();
+
+    pt2(0) = best_branch_root_->children_[0]->state_[0] + transform_.getOrigin().x();
+    pt2(1) = best_branch_root_->children_[0]->state_[1] + transform_.getOrigin().y();
+    pt2(2) = best_branch_root_->children_[0]->state_[2] + transform_.getOrigin().z();  
+    mrcn.block_path(pt1, pt2, true);
     result.is_clear = true;
+  }
   else
   {
     ROS_WARN("Getting frontiers");
